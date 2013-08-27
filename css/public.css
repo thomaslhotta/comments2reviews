@@ -1,0 +1,62 @@
+/* This stylesheet is used to style the public view of the plugin. */
+
+.rating-selector {
+      overflow: hidden;
+      display: inline-block;
+      width: auto;
+}
+
+.rating-box {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.rating-selector input {
+      position: absolute;
+      left: 0;
+      top: -50px;
+}
+
+.rating-selector .rating-text {
+    display: none;
+}
+
+.rating-selector .rating-star {
+    float: right;
+}
+
+.rating-selector .rating-star .icon-star {
+    display: none;
+}
+
+.rating-selector .rating-star:hover .icon-star,
+.rating-selector .rating-star:hover ~ .rating-star .icon-star,
+.rating-selector input:checked ~ .rating-star .icon-star {
+    display: inline-block;
+}
+
+.rating-selector .rating-star:hover .icon-star-empty,
+.rating-selector .rating-star:hover ~ .rating-star .icon-star-empty,
+.rating-selector input:checked ~ .rating-star .icon-star-empty {
+    display: none;
+}
+
+/* IE 7/8 fallback  */ 
+
+
+.lt-ie9 .rating-selector input {
+    position: static;
+}
+
+.lt-ie9 .rating-selector .rating-star {
+    float: none;
+}
+
+.lt-ie9 .rating-selector .rating-text {
+    display: inline;
+}
+
+.lt-ie9 .rating-selector .icon-star,
+.lt-ie9 .rating-selector .icon-star-empty {
+    display: none !important;
+}
