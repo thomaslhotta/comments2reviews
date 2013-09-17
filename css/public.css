@@ -1,9 +1,9 @@
 /* This stylesheet is used to style the public view of the plugin. */
 
 .rating-selector {
-      overflow: hidden;
-      display: inline-block;
-      width: auto;
+    overflow: hidden;
+    display: inline-block;
+    width: auto;
 }
 
 .rating-box {
@@ -12,9 +12,9 @@
 }
 
 .rating-selector input {
-      position: absolute;
-      left: 0;
-      top: -50px;
+    position: absolute;
+    left: 0;
+    top: -500px;
 }
 
 .rating-selector .rating-text {

@@ -5,7 +5,7 @@
  *
  * @package   Comments 2 Reviews
  * @author    Thomas Lhotta <th.lhotta@gmail.com>
- * @link      http://example.com
+ * @link      http://www.github.com/thomaslhotta
  * @copyright 2013 Thomas Lhotta
  *
  * @wordpress-plugin
@@ -14,7 +14,7 @@
  * Description: A plugin that turns comments into reviews.
  * Version:     1.0.0
  * Author:      Thomas Lhotta
- * Author URI:  TODO
+ * Author URI:  http://www.github.com/thomaslhotta
  * Text Domain: plugin-name-locale
  * License:     GPL-2.0+
  * Domain Path: /lang
@@ -25,13 +25,8 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-// TODO: replace `class-plugin-name.php` with the name of the actual plugin's class file
-require_once( plugin_dir_path( __FILE__ ) . 'class-comments-2-reviews.php' );
+define( 'COMMENTS_2_REVIEWS_DIR', dirname( __FILE__ ) );
 
-// Register hooks that are fired when the plugin is activated, deactivated, and uninstalled, respectively.
-// TODO: replace Plugin_Name with the name of the plugin defined in `class-plugin-name.php`
-//register_activation_hook( __FILE__, array( 'Plugin_Name', 'activate' ) );
-//register_deactivation_hook( __FILE__, array( 'Plugin_Name', 'deactivate' ) );
+require_once( dirname( __FILE__ ) . '/classes/class-comments-2-reviews.php' );
 
-// TODO: replace Plugin_Name with the name of the plugin defined in `class-plugin-name.php`
 Comments_2_Reviews::get_instance();

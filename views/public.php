@@ -15,18 +15,18 @@
 <div class="rating" itemprop="aggregateRating" itemscope itemtype="http://schema.org/AggregateRating">
     <?php include dirname(__FILE__) .  "/rating.php" ?>
     
-    <span itemprop="ratingValue"><?php echo round($rating, 1)?></span>/5
-    (<span itemprop="reviewCount"><?php echo $rating_count?></span>
+    <span class="rating-value" itemprop="ratingValue"><?php echo round($rating, 1)?></span>
+    <span class="rating-of">/5</span>
+    (<span class="rating-count" itemprop="reviewCount"><?php echo $rating_count?></span>
+    <span class="rating-name">
     <?php 
-        if ( 1 ==$rating_count) {
-            echo __('Review');
+        if ( 1 == $rating_count) {
+            _e('Review', 'comments2reviews');
         } else {
-            echo __('Reviews');
+            _e('Reviews', 'comments2reviews');
         }
-        
     ?>
-    
-    )
+    </span>)
 </div>
 
 

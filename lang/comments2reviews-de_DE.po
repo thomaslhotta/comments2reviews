@@ -1,0 +1,62 @@
+# Copyright (C) 2013 TODO
+# This file is distributed under the same license as the TODO package.
+msgid ""
+msgstr ""
+"Project-Id-Version: Comments to Reviews\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/plugin-name\n"
+"POT-Creation-Date: 2013-05-10 11:23:19+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2013-09-09 14:36+0100\n"
+"Last-Translator: Thomas Lhotta <th.lhotta@gmail.com>\n"
+"Language-Team: Thomas Lhotta <th.lhotta@gmail.com>\n"
+"X-Generator: Poedit 1.5.4\n"
+"X-Poedit-KeywordsList: __;_e;_n;_x;esc_html_e;esc_html__;esc_attr_e;"
+"esc_attr__;_ex:1,2c;_nx:4c,1,2;_nx_noop:4c,1,2;_x:1,2c;_n:1,2\n"
+"X-Poedit-Basepath: ../\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"Language: Deutsch\n"
+"X-Poedit-SearchPath-0: .\n"
+
+msgid "Rating"
+msgstr "Bewertung"
+
+msgid "Title"
+msgstr "Titel"
+
+msgid "A plugin that turns comments into reviews."
+msgstr "Verwandelt Kommentare in Testberichte."
+
+msgid "Choose the post types that reviews should be enabled on."
+msgstr "Wo sollen Kommentare als Testberichte verwendet werden. "
+
+msgid "Create Reviews on:"
+msgstr "Testberichte aktivieren auf:"
+
+msgid "%1$s posted a review on %2$s"
+msgstr "%1$s hat %2$s bewertet"
+
+msgid "on the site %1$s"
+msgstr "auf %1$s"
+
+msgid "Comments 2 Reviews Settings"
+msgstr "Comments 2 Reviews Einstellungen"
+
+msgid "%plural% for Approved Comment"
+msgstr "%plural% for genehmigte Testberichte"
+
+msgid "%plural% deduction for Reviews marked as SPAM"
+msgstr "%plural% Abzug for Comment marked as SPAM"
+
+msgid "%plural% deduction for deleted / unapproved Comment"
+msgstr "%plural% Abzug für gelöschte / abgelehnte Testberichte"
+
+msgid "Available template tags: General, Review"
+msgstr "Available template tags: General, Review"
+
+msgid "Review Marked SPAM"
+msgstr "Testbericht als SPAM markiert"
+
+msgid "Trashed / Unapproved Reviews"
+msgstr "Gelösche / Abgelehnte Testberichte"
