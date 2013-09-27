@@ -1,8 +1,6 @@
-<?php $slug = $this->get_plugin_slug()?>
-
 <div class="wrap">
     <?php screen_icon(); ?>
-    <h2><?php _e( 'Comments 2 Reviews Settings', $this->get_plugin_slug() )?></h2>
+    <h2><?php _e( 'Comments 2 Reviews Settings', $slug )?></h2>
     
     <form method="post" action="options.php"> 
         <?php 

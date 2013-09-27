@@ -1,10 +1,8 @@
-<div itemprop="review" itemscope itemtype="http://schema.org/Review">
     <?php include dirname(__FILE__) . "/rating.php" ?>
     
     <?php if ( $title ):?>
-        <span itemprop="name"><?php echo $title?></span>
+        <span class="review-title" itemprop="name"><?php echo $title?></span>
     <?php endif;?>
-    <span itemprop="ratingValue"><?php echo $rating ?></span>
+    <span class="review-rating-value" itemprop="ratingValue"><?php echo $rating ?></span>
     <span itemprop="description"><?php echo $text?></span>
-</div>
 

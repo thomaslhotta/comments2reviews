@@ -13,30 +13,33 @@ class MyCREDReview extends myCRED_Hook
     /**
      * Construct
      */
-    function __construct( $hook_prefs ) {
+    function __construct( $hook_prefs ) 
+    {
         
-        parent::__construct( array(
-            'id'       => 'comments2reviews_review',
-            'defaults' => array(
-					'limits'   => array(
-						'self_reply' => 0,
-						'per_post'   => 10,
-						'per_day'    => 0
-					),
-					'approved' => array(
-						'creds'   => 1,
-						'log'     => '%plural% for Approved Comment'
-					),
-					'spam'     => array(
-						'creds'   => '-5',
-						'log'     => '%plural% deduction for Comment marked as SPAM'
-					),
-					'trash'    => array(
-						'creds'   => '-1',
-						'log'     => '%plural% deduction for deleted / unapproved Comment'
+        parent::__construct(
+        	array(
+	            'id'       => 'comments2reviews_review',
+	            'defaults' => array(
+						'limits'   => array(
+							'self_reply' => 0,
+							'per_post'   => 10,
+							'per_day'    => 0,
+						),
+						'approved' => array(
+							'creds'   => 1,
+							'log'     => '%plural% for Approved Comment',
+						),
+						'spam'     => array(
+							'creds'   => '-5',
+							'log'     => '%plural% deduction for Comment marked as SPAM',
+						),
+						'trash'    => array(
+							'creds'   => '-1',
+							'log'     => '%plural% deduction for deleted / unapproved Comment',
+						)
 					)
-				)
-			), $hook_prefs ); 
+				), $hook_prefs 
+        ); 
     }
     
     
@@ -54,12 +57,12 @@ class MyCREDReview extends myCRED_Hook
      * Check if the user qualifies for points
      */
     public function review( $comment_id, $comment_status ) {
-        $this->new_comment($comment_id, $comment_status);
+        $this->new_comment( $comment_id, $comment_status );
     
         // Prevent standard comments hook.
-        $hook = $this->get_comment_hook($GLOBALS['wp_filter'], 'comment_post');
+        $hook = $this->get_comment_hook( $GLOBALS['wp_filter'], 'comment_post' );
         if ( !is_null( $hook ) ) {
-            remove_action('comment_post', array( $hook, 'new_comment' ));
+            remove_action( 'comment_post', array( $hook, 'new_comment' ) );
         }
     }
     
@@ -69,13 +72,14 @@ class MyCREDReview extends myCRED_Hook
      * @param string $old_status
      * @param integer $comment
      */
-    public function transition_comment_status( $new_status, $old_status, $comment ) {
-        $this->comment_transitions($new_status, $old_status, $comment);
+    public function transition_comment_status( $new_status, $old_status, $comment )
+    {
+        $this->comment_transitions( $new_status, $old_status, $comment );
         
         // Prevent standard comments transition hook.
-        $hook = $this->get_comment_hook($GLOBALS['wp_filter'], 'transition_comment_status');
+        $hook = $this->get_comment_hook( $GLOBALS['wp_filter'], 'transition_comment_status' );
         if ( !is_null( $hook ) ) {
-            remove_action('transition_comment_status', array( $hook, 'comment_transitions' ));
+            remove_action( 'transition_comment_status', array( $hook, 'comment_transitions' ) );
         }
         
     }
@@ -209,7 +213,7 @@ class MyCREDReview extends myCRED_Hook
 		if ( $this->prefs['limits']['per_post'] > 0 ) {
 			$post_limit = 0;
 			// Grab limit
-			$limit = get_user_meta( $user_id, 'mycred_comment_limit_post', true );
+			$limit = get_user_meta( $user_id, 'mycred_review_limit_post', true );
 			// Apply default if none exist
 			if ( empty( $limit ) ) $limit = array( $post_id => $post_limit );
 
@@ -222,16 +226,16 @@ class MyCREDReview extends myCRED_Hook
 			}
 
 			// Add / Replace post_id counter with an incremented value
-			$limit[$post_id] = $post_limit+1;
+			$limit[$post_id] = $post_limit + 1;
 			// Save
-			update_user_meta( $user_id, 'mycred_comment_limit_post', $limit );
+			update_user_meta( $user_id, 'mycred_review_limit_post', $limit );
 		}
 
 		// Second we check daily limit
 		if ( $this->prefs['limits']['per_day'] > 0 ) {
 			$daily_limit = 0;
 			// Grab limit
-			$limit = get_user_meta( $user_id, 'mycred_comment_limit_day', true );
+			$limit = get_user_meta( $user_id, 'mycred_review_limit_day', true );
 			// Apply default if none exist
 			if ( empty( $limit ) ) $limit = array();
 
@@ -248,9 +252,9 @@ class MyCREDReview extends myCRED_Hook
 			}
 
 			// Add / Replace todays counter with an imcremented value
-			$limit[$today] = $daily_limit+1;
+			$limit[$today] = $daily_limit + 1;
 			// Save
-			update_user_meta( $user_id, 'mycred_comment_limit_day', $limit );
+			update_user_meta( $user_id, 'mycred_review_limit_day', $limit );
 		}
 
 		return false;
@@ -316,15 +320,14 @@ class MyCREDReview extends myCRED_Hook
      */
     public function get_comment_hook( $filters, $tag )
     {
-        foreach ( $filters[$tag][10] as $filter) {
-            foreach ($filter as $entry) {
-                if ( is_array($entry) ) {
-                    $o =  $entry[0];
+        foreach ( $filters[$tag][10] as $filter ) {
+            foreach ( $filter as $entry ) {
+                if ( is_array( $entry ) ) {
+                    $o = $entry[0];
                     if ( $o instanceof myCRED_Hook_Comments ) {
                        return $o;
                     }
-                }
-                 
+                }                 
             }
         }
         

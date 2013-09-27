@@ -8,7 +8,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2013-09-09 14:36+0100\n"
+"PO-Revision-Date: 2013-09-26 18:18+0100\n"
 "Last-Translator: Thomas Lhotta <th.lhotta@gmail.com>\n"
 "Language-Team: Thomas Lhotta <th.lhotta@gmail.com>\n"
 "X-Generator: Poedit 1.5.4\n"
@@ -60,3 +60,7 @@ msgstr "Testbericht als SPAM markiert"
 
 msgid "Trashed / Unapproved Reviews"
 msgstr "Gelösche / Abgelehnte Testberichte"
+
+# URLs
+msgid "reviews"
+msgstr "testberichte"

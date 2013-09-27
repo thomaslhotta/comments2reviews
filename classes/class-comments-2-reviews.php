@@ -21,14 +21,12 @@ class Comments_2_Reviews {
 	 * Plugin version, used for cache-busting of style and script file references.
 	 *
 	 * @since   1.0.0
-	 *
 	 * @var	 string
 	 */
 	protected $version = '1.0.0';
 
 	/**
 	 * Unique identifier for your plugin.
-	 *
 	 *
 	 * @since	1.0.0
 	 * @var	  string
@@ -57,6 +55,11 @@ class Comments_2_Reviews {
 	 * @var array|null
 	 */
 	protected $enabled_post_types = null;
+	
+	/**
+	 * @var C2R_Settings
+	 */
+	protected $settings = null;
 
 	/**
 	 * Initialize the plugin by setting localization, filters, and administration functions.
@@ -64,11 +67,17 @@ class Comments_2_Reviews {
 	 * @since	 1.0.0
 	 */
 	private function __construct() {
-
+		// Add review pages
+		require_once dirname( __FILE__ ) . '/class-c2r-review-page.php';
+		new C2R_Review_Page( $this->get_settings(), $this );
+		
+		require_once dirname( __FILE__ ) . '/class-c2r-query.php';
+		new C2R_Query( $this->get_settings() );
+		
+		require_once dirname( __FILE__ ) . '/functions.php';
+		
 		// Load plugin text domain
 		add_action( 'init', array( $this, 'load_plugin_textdomain' ) );
-
-		add_action( 'admin_menu', array( $this, 'add_plugin_admin_menu' ) );
 
 		// Load public-facing style sheet and JavaScript.
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
@@ -80,36 +89,23 @@ class Comments_2_Reviews {
 		
 		add_action( 'comment_post', array( $this, 'save_comment_meta_data' ), 9, 2 );
 		
+		if ( is_admin() ) {
+			// Update ratings on admin actions. This includes editing the post and editing comments.
+			add_action( 'edit_post', array( $this, 'update_post_rating' ) );
+			
+			// Register admin  functions
+			require_once dirname( __FILE__ ) . '/class-c2r-admin.php';
+			new C2R_Admin( $this->get_settings() );
+		}
+		
 		// Add the rating markup to the comment text on display
 		add_filter( 'comment_text', array( $this, 'modify_comment' ) , 1000 );
 		
 		// Modify comment author
 		add_filter( 'get_comment_author' , array( $this, 'get_comment_author' ) );
 		
-		
 		// Add a class to rated comments on display and injects microformat
 		add_filter( 'comment_class', array( $this, 'add_comment_class' ) , 9999, 3 );
-		
-		
-		
-		// Handle comment deletion
-		add_action( 'comment_approved_to_trash', array( $this, 'delete_comment' ) );
-		add_action( 'comment_approved_to_unapproved', array( $this, 'delete_comment' ) );
-		
-		add_action( 'comment_unapproved_to_approved', array( $this, 'restore_comment' ) );
-		add_action( 'comment_trash_to_approved', array( $this, 'restore_comment' ) );
-		
-	
-		// Add review pages
-		require_once dirname( __FILE__ ) . '/class-c2r-review-page.php';
-		new C2R_Review_Page( $this );
-		
-		require_once dirname( __FILE__ ) . '/class-c2r-query.php';
-		new C2R_Query();
-		
-		require_once dirname( __FILE__ ) . '/class-c2r-admin.php';
-		new C2R_Admin( $this );
-		
 		
 		// Integrate width buddypress
 		add_filter( 'bp_blogs_activity_new_comment_action', array( $this, 'buddypress_rename_comment_activity'), 10, 3 );
@@ -127,7 +123,7 @@ class Comments_2_Reviews {
 	 * Return an instance of this class.
 	 *
 	 * @since	 1.0.0
-	 * @return	object	A single instance of this class.
+	 * @return	Comments_2_Reviews	A single instance of this class.
 	 */
 	public static function get_instance() {
 
@@ -139,7 +135,6 @@ class Comments_2_Reviews {
 		return self::$instance;
 	}
 
-
 	/**
 	 * Load the plugin text domain for translation.
 	 *
@@ -147,13 +142,12 @@ class Comments_2_Reviews {
 	 */
 	public function load_plugin_textdomain() {
 
-		$domain = $this->get_plugin_slug();
+		$domain = $this->get_settings()->get_plugin_slug();
 		$locale = apply_filters( 'plugin_locale', get_locale(), $domain );
 		
 		load_textdomain( $domain, WP_LANG_DIR . '/' . $domain . '/' . $domain . '-' . $locale . '.mo' );
 		$test = load_plugin_textdomain( $domain, true, basename( COMMENTS_2_REVIEWS_DIR ) . '/lang/' );
 	}
-
 
 	/**
 	 * Register and enqueue public-facing style sheet.
@@ -161,130 +155,13 @@ class Comments_2_Reviews {
 	 * @since	1.0.0
 	 */
 	public function enqueue_styles() {
-		wp_enqueue_style( $this->get_plugin_slug() . '-plugin-styles', WP_PLUGIN_URL . '/' . basename( COMMENTS_2_REVIEWS_DIR ) . '/css/public.css', array(), $this->version );
-	}
-
-	
-	/**
-	 * Register the administration menu for this plugin into the WordPress Dashboard menu.
-	 *
-	 * Adds settings fields
-	 *
-	 * @since	1.0.0
-	 */
-	public function add_plugin_admin_menu() {
-		$this->plugin_screen_hook_suffix = add_options_page(
-			__( 'Comments 2 Reviews', $this->get_plugin_slug() ),
-			__( 'Comments 2 Reviews', $this->get_plugin_slug() ),
-			'manage_options',
-			$this->get_plugin_slug(),
-			array( $this, 'display_plugin_admin_page' )
-		);
-		
-		$settings_slug = $this->get_plugin_slug() . '-enabled_post_types';
-		
-		register_setting(
-			$settings_slug,
-			$settings_slug,
-			array( $this, 'sanitize_post_type_settings_field' )
-		);
-		
-		add_settings_section(
-			$settings_slug, // ID
-			__( 'Create Reviews on:', $this->get_plugin_slug() ), // Title
-			null,//array( $this, 'test' ), // Callback
-			$settings_slug
-		);
-		
-		add_settings_field(
-			$settings_slug,
-			__( 'Choose the post types that reviews should be enabled on.', $this->get_plugin_slug() ),
-			array( $this, 'render_post_type_settings_field' ),
-			$settings_slug,
-			$settings_slug
+		wp_enqueue_style( 
+			$this->get_settings()->get_plugin_slug() . '-plugin-styles',
+			WP_PLUGIN_URL . '/' . basename( COMMENTS_2_REVIEWS_DIR ) . '/css/public.css',
+			array(),
+			$this->version 
 		);
 	}
-	
-	
-	/**
-	 * Render the settings page for this plugin.
-	 *
-	 * @since 1.0.0
-	 */
-	public function display_plugin_admin_page() {
-		include_once( COMMENTS_2_REVIEWS_DIR . '/views/admin.php' );
-	}
-	
-	
-	/**
-	 * Renders the post type selection field.
-	 */
-	public function render_post_type_settings_field()
-	{
-		$post_types = array();
-		
-		$settings_slug = $this->get_plugin_slug() . '-enabled_post_types';
-		
-		foreach ( get_post_types( array('public' => true) ) as $slug => $name ) {
-			$post_type = array(
-				'slug' => $slug,
-				'name' => get_post_type_object( $slug )->labels->name,
-				'enabled' => in_array( $slug, $this->get_enabled_post_types() )
-			);
-			$post_types[] = $post_type;
-		}
-		
-		include COMMENTS_2_REVIEWS_DIR . '/views/field-post-type.php';
-	}
-	
-	
-	/**
-	 * Sanitizes the enabled posts option.
-	 * 
-	 * @param array|null $input
-	 * @return array|null
-	 */
-	public function sanitize_post_type_settings_field( $input )
-	{
-		// Only array are valid as input.
-		if ( !is_array( $input ) ) {
-			return null;
-		}
-		
-		// Make sure only existing post types are used.
-		$sanitized = array();
-		foreach ( $input as $post_type ) {
-			if ( get_post_type_object( $post_type ) ) {
-				$sanitized[] = $post_type;
-			}
-		}
-		
-		return $sanitized;
-	}
-	
-	
-	/**
-	 * Returns an array of enabled post types.
-	 * 
-	 * @return array
-	 */
-	public function get_enabled_post_types()
-	{
-		if ( is_array( $this->enabled_post_types ) ) {
-			return $this->enabled_post_types;
-		}
-		
-		$post_types = get_option( $this->get_plugin_slug() . '-enabled_post_types' );
-		
-		if ( !is_array( $post_types ) ) {
-			$post_types = array();
-		}
-		
-		$this->enabled_post_types = $post_types;
-		
-		return $this->enabled_post_types;
-	}
-
 	
 	/**
 	 * Adds the rating form fields to the comments field.
@@ -293,10 +170,10 @@ class Comments_2_Reviews {
 		$post = get_post();
 		
 		// Don't to anything if comments are not enabled for this post type.
-		if ( !in_array( $post->post_type, $this->get_enabled_post_types() ) ) {
+		if ( !in_array( $post->post_type, $this->get_settings()->get_enabled_post_types() ) ) {
 			return;
 		}
-		
+
 		$user = wp_get_current_user();
 	
 		// Find existing ratings
@@ -311,7 +188,6 @@ class Comments_2_Reviews {
 				),
 			),
 		);
-		
 	
 		$query = new WP_Comment_Query( $query );
 		$existing_ratings = $query->query( $args );
@@ -349,13 +225,62 @@ class Comments_2_Reviews {
 		}
 	}
 	
+	/**
+	 * Returns rating stats for the current post.
+	 * 
+	 * @param string $id
+	 * @return array
+	 */
+	public function get_post_rating_stats( $id = null, $echo = true )
+	{
+	    $post = get_post( $id );
+	    $id = $post->ID;
+	    
+	    $args = array(
+	       'post_ID' => $id,
+	       'status' => 'approve',
+	       'meta_query' => array(
+	           array(
+	               'key'     => 'rating',
+	               'compare' => 'EXISTS',
+	           ),
+	       )
+	    );
+	    
+	    // The Query
+	    $comments_query = new WP_Comment_Query;
+	    $comments = $comments_query->query( $args );
+	    
+	    $stats = array(
+	        1 => 0,
+	        2 => 0,
+	        3 => 0,
+	        4 => 0,
+	        5 => 0,	       
+	    );
+	    
+	    if ( !is_array( $comments ) ) {
+	        return $stats;
+	    }
+	    
+	    foreach ( $comments as $comment ) {
+	        $stats[intval( $comment->meta_value )] += 1; 
+	    }
+	    
+	    if ( $echo ) {
+	    	include( COMMENTS_2_REVIEWS_DIR . '/views/stats.php' );
+	    }
+	    
+	    return $stats;
+	}
+	
+	
 	public function save_comment_meta_data( $comment_id, $status ) {
 		if ( ( isset( $_POST['title'] ) ) && ( $_POST['title'] != '') ) {
 			$title = wp_filter_nohtml_kses( $_POST['title'] );
 			add_comment_meta( $comment_id, 'title', $title );
 		}
 		 
-	
 		if ( ( isset( $_POST['rating'] ) ) && ( $_POST['rating'] != '') ) {
 			$rating = wp_filter_nohtml_kses( $_POST['rating'] );
 			$rating = intval( $rating );
@@ -396,7 +321,7 @@ class Comments_2_Reviews {
 			return $classes;
 		}
 
-		$classes[] = 'has-rating';
+		$classes[] = 'review';
 		
 		// Inject microformat
 		$classes[] = '" itemprop="review" itemscope itemtype="http://schema.org/Review"';
@@ -426,7 +351,6 @@ class Comments_2_Reviews {
 	 * @param string $text
 	 * @return integer|object
 	 */
-	
 	public function modify_comment( $text, $comment = null )
 	{
 		// Sanitize comment object input
@@ -464,37 +388,10 @@ class Comments_2_Reviews {
 		$return = ob_get_contents();
 		ob_end_clean();
 		
-				
 		return $return;
 	}
 	
-
-	
-	
-	
-	/**
-	 * Updates the post rating when a comment is deleted.
-	 * 
-	 * @param object $comment
-	 */
-	public function delete_comment( $comment ) {
-		$this->update_post_rating(
-			$comment->comment_post_ID,
-			$this->get_comment_rating( $comment ) * -1, -1
-		);
-	}	
-	
-	/**
-	 * Updates the post rating when a comment is restored.
-	 * 
-	 * @param comment $comment
-	 */
-	public function restore_comment( $comment ) {
-		$this->update_post_rating(
-			$comment->comment_post_ID, 
-			$this->get_comment_rating( $comment )
-		);
-	}
+		
 	
 	/**
 	 * Returns the rating value of the comment or null if the commen is no rating.
@@ -521,43 +418,36 @@ class Comments_2_Reviews {
 	 * Updates the rating of a post
 	 * 
 	 * @param integer $post
-	 * @param integer $rating
-	 * @param number $count
 	 */
-	protected function update_post_rating( $post, $rating, $count = 1 )
+	public function update_post_rating( $post )
 	{
-		$post = get_post( $post );
-		
-		$rating_count = intval( get_post_meta( $post->ID, 'rating_count', true ) );
-		$new_count = $rating_count + $count;
-		
-		if ( $new_count >= 0 ) {
-			update_post_meta( $post->ID, 'rating_count' , $new_count );
+		if ( !$post instanceof WP_Post ) {
+			$post = get_post( $post );
 		}
 		
-		$rating_total =  intval(get_post_meta( $post->ID, 'rating_total', true ) );
-		$new_total =  $rating_total + $rating;
-		
-		if ( $new_total >= 0 ) {
-			update_post_meta( $post->ID, 'rating_total' , $new_total );
+		// Only do this for enabled post types.
+		if ( !in_array( $post->post_type, $this->get_settings()->get_enabled_post_types() ) ) {
+			return;
 		}
 		
+		$stats = $this->get_post_rating_stats( $post, false );
 		
-		// Get updated values
-		$rating_count = intval( get_post_meta( $post->ID, 'rating_count', true ) );
-		$rating_total = ( get_post_meta( $post->ID, 'rating_total', true ) );
+		$rating = 0;
 		
-		// No reviews left, stop here.
-		if ( $rating_count <= 0 ) {
-		    return;
+		if ( 0 < $total = array_sum( $stats ) ) {
+			$weighted = 0;
+			
+			foreach ( $stats as $number => $count ) {
+				$weighted += $number * $count;	
+			}
+			$rating = $weighted / $total;
 		}
 		
-		$mean = round( $rating_total / $rating_count, 2 );
-		
-		// Update mean
-		update_post_meta( $post->ID, 'rating_mean' , $mean );
+		update_post_meta( $post->ID, 'rating_count' , $total );
+		update_post_meta( $post->ID, 'rating_mean' , $rating );
 		
 	}
+	
 	
 	
 	/**
@@ -576,29 +466,35 @@ class Comments_2_Reviews {
 			$id = $id->comment_ID;	
 		}
 		
-		$return = get_comment_meta( $id, 'rating' ,true );
-		
+		$return = get_comment_meta( $id, 'rating' );
+
 		if ( empty( $return ) ) {
 			return false;
 		}
 		
 		return true;
 	}
-
 	
 	/**
-	 * Returns the plugin slug
+	 * Returns a settins object.
 	 * 
-	 * @return string
+	 * @return C2R_Settings
 	 */
-	public function get_plugin_slug()
+	public function get_settings()
 	{
-		return $this->plugin_slug;
+		if ( $this->settings ) {
+			return $this->settings;
+		}
+		
+		if ( !class_exists( 'C2R_Settings' ) ) {
+			require_once dirname( __FILE__ ) . '/class-c2r-settings.php';
+		}
+		
+		
+		$this->settings = new C2R_Settings();
+		
+		return $this->settings;
 	}
-	
-	
-
-	
 	
 	/**
 	 * Changes the activity string in buddypress
@@ -610,6 +506,11 @@ class Comments_2_Reviews {
 	 */
 	public function buddypress_rename_comment_activity( $activity_action, $recorded_comment, $is_approved = true )
 	{
+	    // Return if comment has no rating.
+	    if ( !$this->comment_has_rating( $recorded_comment ) ) {
+	        return $activity_action;
+	    }
+	    
 	    $user = get_user_by( 'email', $recorded_comment->comment_author_email );
 	    $user_id = (int) $user->ID;
 	    $post_permalink = get_permalink( $recorded_comment->comment_post_ID );
@@ -617,17 +518,18 @@ class Comments_2_Reviews {
 	    $single = '%1$s posted a review on %2$s';
 	    $multi  = 'on the site %1$s';
 	     
+	    $plugin_slug = $this->get_settings()->get_plugin_slug();
 	
 	    $string = sprintf(
-	            __( $single, $this->get_plugin_slug() ),
-	            bp_core_get_userlink( $user_id ),
-	            '<a href="' . $post_permalink . '">' . apply_filters( 'the_title', $recorded_comment->post->post_title ) . '</a>'
+            __( $single, $plugin_slug ),
+            bp_core_get_userlink( $user_id ),
+            '<a href="' . $post_permalink . '">' . apply_filters( 'the_title', $recorded_comment->post->post_title ) . '</a>'
 	    );
 	
 	    if ( is_multisite() ) {
 	        $string .= ',' . sprintf(
-	                __( $multi, $this->get_plugin_slug() ),
-	                '<a href="' . get_blog_option( $blog_id, 'home' ) . '">' . get_blog_option( $blog_id, 'blogname' ) . '</a>'
+                __( $multi, $plugin_slug ),
+                '<a href="' . get_blog_option( $blog_id, 'home' ) . '">' . get_blog_option( $blog_id, 'blogname' ) . '</a>'
 	        );
 	    }
 	
@@ -637,18 +539,18 @@ class Comments_2_Reviews {
 	public function mycred_hooks( $modules )
 	{
 	    return array_merge(
-	            $modules,
-	            array(
-	                'reviews' => array(
-	                    'class' => 'MyCREDHooks',
-	                    'file'  => dirname( __FILE__ ) . '/MyCREDHooks.php',
-	                )
-	            )
+            $modules,
+            array(
+                'reviews' => array(
+                    'class' => 'MyCREDHooks',
+                    'file'  => dirname( __FILE__ ) . '/MyCREDHooks.php',
+                )
+            )
 	    );
 	}
 	
 	public function __( $text )
 	{
-	    return __( $text, $this->get_plugin_slug() );
+	    return __( $text, $this->get_settings()->get_plugin_slug() );
 	}
 }

@@ -10,11 +10,6 @@
 
 ?>
 
-<div class="comment-form-title form-group">
-    <label for="review-title"><?php _e('Title', 'comments2reviews')?></label>
-	<input id="review-title" name="title" type="text" class="form-control" size="30" <?php echo $title ? 'value="' . $title .'"' : ''  ?>/>
-</div>
-
 <div class="rating-selector clearfix form-group">
     <label for="rating-box"><?php _e('Rating', 'comments2reviews')?></label>
     <span class="rating-box" id="rating-box">
@@ -30,3 +25,9 @@
     <?php endfor?>
     </span>
 </div>
+
+<div class="review-title form-group">
+    <label for="review-title"><?php _e('Title', 'comments2reviews')?></label>
+	<input id="review-title" name="title" type="text" class="form-control" size="30" <?php echo $title ? 'value="' . $title .'"' : ''  ?>/>
+</div>
+
