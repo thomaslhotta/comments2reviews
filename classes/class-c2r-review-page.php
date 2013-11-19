@@ -4,7 +4,7 @@
  * Creates pages width individual urls for single comments.
  * 
  * @author Thomas Lhotta
-sa */
+ */
 class C2R_Review_Page
 {
     /**
@@ -31,14 +31,15 @@ class C2R_Review_Page
 	 */
 	protected $comment = null;
 	
-	public function __construct( C2R_Settings $settings, $settings, Comments_2_Reviews $main )
+	public function __construct( C2R_Settings $settings, Comments_2_Reviews $main )
 	{
 		$this->settings = $settings;
 		$this->main = $main;
 		
-		// Add redirects for wordpress pages
-		add_action( 'init', array( $this, 'add_review_endpoints' ) );
-		add_filter( 'template_include', array( $this, 'redirect_comment_template' ) );
+		// Adds the reviews endpoint. Must be executed after the text domain is added.
+		add_action( 'init', array( $this, 'add_review_endpoints' ), 99 );
+		
+		add_filter( 'template_include', array( $this, 'redirect_comment_template' ), 11 );
 		add_filter( 'comments_array', array( $this, 'comments_array' ) , 999 , 2  );
 		add_filter( 'get_comment_link', array( $this, 'modify_comment_link' ), 10, 3 );
 	}
@@ -85,14 +86,22 @@ class C2R_Review_Page
 	        return $redirect;
 	    }
 	
-	    $id = $wp_query->query_vars[$param];
+	    $url = $wp_query->query_vars[$param];
 	    
 	    // The param has already been processed. Don't do anything. 
-	    if ( !is_string( $id ) ) {
+	    if ( !is_string( $url ) ) {
 	        return $redirect;
 	    }
 	    
+	    // Return if on comment page
+	    if ( strpos( $url, 'comment-page-' ) ) {
+	    	return $redirect;
+	    }
+	    
 	    $comment = false;
+
+	    $url_parts = explode( '-', $url );
+	    $id = end( $url_parts );
 	    
 	    if ( is_numeric( $id ) ) {
 	        $id = intval( $id );
@@ -100,6 +109,7 @@ class C2R_Review_Page
 	        $comment = get_comment( $id );	        
 	    } 
 
+	    // If no comment was found or it belongs to another post
 	    if ( !$comment || $comment->comment_post_ID != get_the_ID() ) {
 	        $wp_query->is_404 = true;
 	        $wp_query->is_single = false;
@@ -107,18 +117,30 @@ class C2R_Review_Page
 	        return get_404_template();
 	    }
 	    
+	    // Redirect if ID is corret but url is not. 
+	    // Only compare the relative components or a redirect loop will result
+	    // if the comment id is included multiple times in the URL.
+	    if ( $url != $this->create_review_url( $comment, false ) ) {
+	    	wp_redirect( $this->create_review_url( $comment, true ), 301 );
+	    	exit;
+	    }  
+	    
 	    $this->comment = $comment;
 	    
 	    // Add open graph meta tags.
 	    add_action( 'wp_head' , array( $this, 'add_open_graph_markup' ) );
-	    // Try to find template
-	    $template = locate_template( 'single-review' );
-	    // Use default if none is found.
-	    if ( !empty( $template) ) {
-	        return $template;
-	    }
 	    
-	    return $redirect;
+	    // Try to find template
+	    $template = apply_filters( 'c2r_locate_template' , 'single-review.php' );
+    	if ( !file_exists( $template ) ) {
+    	    $template = locate_template( 'single-review.php' );
+    	}
+    	
+	    // Use default if none is found.
+	    if ( empty( $template) ) {
+	        return $redirect;
+	    }
+	    return $template;
 	}
 	
 	/**
@@ -129,21 +151,29 @@ class C2R_Review_Page
 	 */
 	public function comments_array( array $comments, $post )
 	{
-	    if ( is_null( $this->comment ) ) {
-	        return $comments;
-	    }
-	    
-	    $comments = array( $this->comment );
-	    
-	    return $comments;
+		if ( empty( $this->comment ) ) {
+			return $comments;
+		}
+		
+		$filtered = array();
+		
+		foreach ( $comments as $comment ) {
+			if ( $comment->comment_ID == $this->comment->comment_ID ) {
+				$filtered[] = $comment;
+			}
+			
+			if ( $comment->comment_parent == $this->comment->comment_ID ) {
+				$filtered[] = $comment;
+			}
+		}
+		
+	    return $filtered;
 	}
 	
 	/**
 	 * Adds facebook open graph markup.
 	 * 
 	 * @todo Define title and content
-	 * 
-	 * 
 	 */
 	public function add_open_graph_markup()
 	{
@@ -197,17 +227,7 @@ class C2R_Review_Page
 	        return $link;
 	    }
 
-	    // Remove pagination link
-	    if ( isset( $args['page'] ) ) {
-	    	$link = str_replace( '/comment-page-' . $args['page'], '' , $link );
-	    }
-	    
-	    return str_replace(
-	        '#comment-' . $comment->comment_ID,
-            $this->get_endpoint() . '/' . $comment->comment_ID,
-	        $link
-	    );
-	    
+	    return $this->create_review_url( $comment );
 	}
 	
 	/**
@@ -222,5 +242,27 @@ class C2R_Review_Page
 		}
 		
 		return $this->endpoint;
+	}
+	
+	/**
+	 * Creates a review url
+	 * 
+	 * @param stdClass $comment
+	 * @return string
+	 */
+	protected function create_review_url( $comment, $full = true )
+	{
+		$comment_url = $comment->comment_ID;
+		
+		$title = get_comment_meta( $comment->comment_ID, 'title', true );
+		if ( '' !== $title ) {
+		    $comment_url = sanitize_title_with_dashes( $title, null, 'save'	) . '-' . $comment_url;
+		}
+		
+		if ( $full ) {
+			$comment_url = rtrim( get_permalink(), '/' ) . '/' . $this->get_endpoint() . '/' . $comment_url . '/';
+		}
+		
+		return $comment_url;
 	}
 }

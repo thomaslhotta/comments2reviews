@@ -8,7 +8,7 @@
  * @author Thomas Lhotta
  *
  */
-class MyCREDReview extends myCRED_Hook
+class MyCRED_Review extends myCRED_Hook
 {
     /**
      * Construct
@@ -266,7 +266,7 @@ class MyCREDReview extends myCRED_Hook
 		 * @version 1.0
 		 */
 		public function preferences() {
-		    $slug = $slug = Comments_2_Reviews::get_instance()->get_plugin_slug();
+		    $slug = $slug = Comments_2_Reviews::get_instance()->get_settings()->get_plugin_slug();
 		    
 			$prefs = $this->prefs;
 		    ?>

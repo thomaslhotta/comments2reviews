@@ -1,10 +1,8 @@
 <?php
-
 /**
  * Display Comments 2 Reviews admin functions
  * 
  * @author Thomas Lhotta
- *
  */
 class C2R_Admin
 {
@@ -22,7 +20,6 @@ class C2R_Admin
         add_action( 'edit_comment', array( $this, 'comment_edit_metafields' ) );
         
         add_action( 'admin_menu', array( $this, 'add_plugin_admin_menu' ) );
-        
     }
     
     /**
@@ -78,7 +75,6 @@ class C2R_Admin
         }
     }
     
-    
     /**
      * Register the administration menu for this plugin into the WordPress Dashboard menu.
      *
@@ -120,7 +116,6 @@ class C2R_Admin
 	        $settings_slug
         );
     }
-    
     
     /**
      * Render the settings page for this plugin.

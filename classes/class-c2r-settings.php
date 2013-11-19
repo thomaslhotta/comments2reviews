@@ -1,4 +1,10 @@
 <?php
+/**
+ * Deals with the plugin config.
+ * 
+ * @author Thomas Lhotta
+ *
+ */
 class C2R_Settings
 {
 	protected $enabled_post_types = null;

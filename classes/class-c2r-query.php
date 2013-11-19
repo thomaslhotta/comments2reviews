@@ -3,11 +3,13 @@
 /**
  * Class that modifies different wordpress queries
  * 
- * @author tom
- *
+ * @author Thomas Lhotta
  */
 class C2R_Query 
 {
+	/**
+	 * @var C2R_Settings
+	 */
 	protected $settings;
 	
     public function __construct( C2R_Settings $settings )
@@ -16,6 +18,8 @@ class C2R_Query
     	
         add_filter( 'pre_get_posts', array( $this, 'modify_query' ) );
         add_filter( 'comments_array', array( $this, 'comments_array' ) , 10 ,2 );
+        
+        add_filter( 'query_vars', array( $this, 'add_query_vars' ) );
     }
     
     /**
@@ -51,7 +55,6 @@ class C2R_Query
 		);        
     }
     
-    
     /**
      * Filter comments to only show reviews.
      * 
@@ -63,14 +66,14 @@ class C2R_Query
     {
     	$post_types = $this->settings->get_enabled_post_types();
     	
-    	if ( !isset( $_GET['rating'] ) || !in_array( get_post_type( $post ) , $post_types ) ) {
+    	$rating = get_query_var( 'rating' );
+    	
+    	if ( '' == $rating || !in_array( get_post_type( $post ) , $post_types ) ) {
     		return $comments;
     	}
     	
     	$review_ids = array(); 
     	
-    	$rating = $_GET['rating'];
-
     	// Find reviews, unset non review comments
     	foreach ( $comments as $key => $comment ) {
     		if ( 0 == $comment->comment_parent ) {
@@ -78,7 +81,7 @@ class C2R_Query
     			
     			// Incude reviews if the rating matches or no rating number
     			// was given but the comment has a rating.
-    			if ( ( $meta && $meta == $rating) || ( $meta && empty($rating) ) ) {
+    			if ( ( $meta && $meta == $rating) || ( $meta && 'all' == $rating ) ) {
     				$review_ids[] = $comment->comment_ID;
     			} else {
     				unset( $comments[$key] );
@@ -86,13 +89,19 @@ class C2R_Query
     		}
     	}
     	
-    	// Remove orphaned anwsers
+    	// Remove orphaned answers
     	foreach ( $comments as $key => $comment ) {
-    		if ( 0 != $comment->comment_parent && in_array( $comment->commen_parent, $review_ids ) ) {
+    		if ( 0 != $comment->comment_parent && !in_array( $comment->comment_parent, $review_ids ) ) {
     			unset( $comments[$key] );
     		}
     	}
     	
     	return $comments;
+    }
+    
+    public function add_query_vars( $vars ) 
+    {
+    	$vars[] = 'rating';
+    	return $vars;
     }
 }

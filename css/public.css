@@ -47,17 +47,23 @@
     display: none;
 }
 
-/* Dont show rating selector for answers */
-.comment + #respond .rating-selector,
-.comment + #respond .review-title {
+/* Don't show rating selector for answers */
+#comments + #respond .rating-selector,
+#comments + #respond .review-title {
     display: none;
+}
+
+/* Post rating display  */
+.rating .stars {
+    display: inline-block;
+    white-space: nowrap;
 }
 
 
 /* Rating stats */
-
 .rating-stats .stars {
     text-align: right;
+    white-space: nowrap;
 }
 
 

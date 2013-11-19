@@ -146,7 +146,7 @@ class Comments_2_Reviews {
 		$locale = apply_filters( 'plugin_locale', get_locale(), $domain );
 		
 		load_textdomain( $domain, WP_LANG_DIR . '/' . $domain . '/' . $domain . '-' . $locale . '.mo' );
-		$test = load_plugin_textdomain( $domain, true, basename( COMMENTS_2_REVIEWS_DIR ) . '/lang/' );
+		load_plugin_textdomain( $domain, true, basename( COMMENTS_2_REVIEWS_DIR ) . '/lang/' );
 	}
 
 	/**
@@ -193,6 +193,7 @@ class Comments_2_Reviews {
 		$existing_ratings = $query->query( $args );
 		
 		if ( empty( $existing_ratings ) ) {
+			do_action( 'c2r_add_rating_fields_to_comment' );
 			include COMMENTS_2_REVIEWS_DIR . '/views/rating-selector.php';
 		}
 	}
@@ -200,7 +201,7 @@ class Comments_2_Reviews {
 	/**
 	 * Returns the posts rating.
 	 */
-	public function get_post_rating( $id = null, $echo = true )
+	public function get_post_rating( $id = null, $echo = true, $microdata = true )
 	{
 		$post = get_post( $id );
 		
@@ -237,7 +238,7 @@ class Comments_2_Reviews {
 	    $id = $post->ID;
 	    
 	    $args = array(
-	       'post_ID' => $id,
+	       'post_id' => $id,
 	       'status' => 'approve',
 	       'meta_query' => array(
 	           array(
@@ -264,7 +265,14 @@ class Comments_2_Reviews {
 	    }
 	    
 	    foreach ( $comments as $comment ) {
-	        $stats[intval( $comment->meta_value )] += 1; 
+			$rating = intval( $comment->meta_value );
+			
+			// Ignore invalid ratings
+			if ( !isset ( $stats[$rating] ) ) {
+				continue;
+			}
+	    	
+	    	$stats[$rating] += 1; 
 	    }
 	    
 	    if ( $echo ) {
@@ -274,7 +282,12 @@ class Comments_2_Reviews {
 	    return $stats;
 	}
 	
-	
+	/**
+	 * Updates the comment rating.
+	 * 
+	 * @param integer $comment_id
+	 * @param comment status $status
+	 */
 	public function save_comment_meta_data( $comment_id, $status ) {
 		if ( ( isset( $_POST['title'] ) ) && ( $_POST['title'] != '') ) {
 			$title = wp_filter_nohtml_kses( $_POST['title'] );
@@ -298,7 +311,7 @@ class Comments_2_Reviews {
 			
 			$comment = get_comment( $comment_id );
 
-			$this->update_post_rating( $comment->comment_post_ID, $rating );
+			$this->update_post_rating( $comment->comment_post_ID );
 			
 			do_action( 'comments2reviews_review', $comment_id, $status );
 		}
@@ -324,11 +337,10 @@ class Comments_2_Reviews {
 		$classes[] = 'review';
 		
 		// Inject microformat
-		$classes[] = '" itemprop="review" itemscope itemtype="http://schema.org/Review"';
+		$classes[] = '" itemscope itemtype="http://data-vocabulary.org/Review';
 		
 		return $classes;
 	}
-	
 	
 	/**
 	 * Adds itemprop to comment author.
@@ -342,7 +354,7 @@ class Comments_2_Reviews {
 			return $author;
 		} 
 		
-		return '<span itemprop="name">' . $author . '</span>';
+		return '<span itemprop="reviewer">' . $author . '</span>';
 	}
 	
 	/**
@@ -361,6 +373,11 @@ class Comments_2_Reviews {
 				$comment = array();
 			}
 			$comment = get_comment( $comment );
+		}
+		
+		// No object found, do nothing.
+		if ( !is_object( $comment ) ) {
+			return;
 		}
 		
 		// Don't modify for child comments
@@ -391,29 +408,30 @@ class Comments_2_Reviews {
 		return $return;
 	}
 	
-		
-	
 	/**
 	 * Returns the rating value of the comment or null if the commen is no rating.
 	 * 
 	 * @param int|object $id
 	 * @return NULL|number
 	 */
-	protected function get_comment_rating( $id ) {
+	public  function get_comment_rating( $id, $echo = false ) {
 		if ( is_object( $id ) ) {
 			$id = $id->comment_ID;	
 		}
 		
-		$return = get_comment_meta( $id, 'rating' ,true );
+		$rating = get_comment_meta( $id, 'rating' ,true );
 		
-		if ( empty( $return ) ) {
+		if ( empty( $rating ) ) {
 			return null;
 		}
 		
-		return intval( $return );
+		if ( $echo ) {
+			include dirname( dirname( __FILE__ ) ). '/views/rating.php';
+		}
+		
+		return intval( $rating );
 	}
    
-	
 	/**
 	 * Updates the rating of a post
 	 * 
@@ -447,8 +465,6 @@ class Comments_2_Reviews {
 		update_post_meta( $post->ID, 'rating_mean' , $rating );
 		
 	}
-	
-	
 	
 	/**
 	 * Returns true if the given comment has a rating.
@@ -536,19 +552,29 @@ class Comments_2_Reviews {
 	    return $string;
 	}
 	
+	/**
+	 * Adds MyCRED hooks
+	 * 
+	 * @param unknown $modules
+	 * @return multitype:
+	 */
 	public function mycred_hooks( $modules )
 	{
 	    return array_merge(
             $modules,
             array(
                 'reviews' => array(
-                    'class' => 'MyCREDHooks',
-                    'file'  => dirname( __FILE__ ) . '/MyCREDHooks.php',
+                    'class' => 'MyCRED_Review_Hooks',
+                    'file'  => dirname( __FILE__ ) . '/class-mycred-review-hooks.php',
                 )
             )
 	    );
 	}
 	
+	/**
+	 * 
+	 * @deprecated
+	 */
 	public function __( $text )
 	{
 	    return __( $text, $this->get_settings()->get_plugin_slug() );
