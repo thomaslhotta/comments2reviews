@@ -33,9 +33,8 @@ class C2R_Query
             return;
         }
         
-        $query->set( 'orderby' , 'meta_value' );
+        $query->set( 'orderby' , 'meta_value_num' );
         $query->set( 'meta_key' , 'rating_mean' );
-        
         // Ensure that even posts without ratings are included.
         $query->set(
         	'meta_query',
@@ -52,7 +51,8 @@ class C2R_Query
         		    'compare' => 'EXISTS',
         		)
          	)
-		);        
+		);  
+
     }
     
     /**
