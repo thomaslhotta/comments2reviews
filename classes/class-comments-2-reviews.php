@@ -115,8 +115,8 @@ class Comments_2_Reviews {
 
 		
 		// Add myCRED hooks
-		
-		add_filter( 'mycred_modules', array( $this, 'mycred_hooks' ) );
+		add_filter( 'mycred_setup_hooks', array( $this, 'mycred_hooks' ) );
+		require_once dirname( __FILE__ ) . '/class-mycred-review.php';
 	}
 
 	/**
@@ -312,7 +312,6 @@ class Comments_2_Reviews {
 			$comment = get_comment( $comment_id );
 
 			$this->update_post_rating( $comment->comment_post_ID );
-			
 			do_action( 'comments2reviews_review', $comment_id, $status );
 		}
 	}
@@ -558,17 +557,17 @@ class Comments_2_Reviews {
 	 * @param unknown $modules
 	 * @return multitype:
 	 */
-	public function mycred_hooks( $modules )
+	public function mycred_hooks( $hooks )
 	{
-	    return array_merge(
-            $modules,
-            array(
-                'reviews' => array(
-                    'class' => 'MyCRED_Review_Hooks',
-                    'file'  => dirname( __FILE__ ) . '/class-mycred-review-hooks.php',
-                )
-            )
-	    );
+		$slug = Comments_2_Reviews::get_instance()->get_settings()->get_plugin_slug();
+		
+        $hooks['comments2reviews_review'] = array(
+            'title'       => __( '%plural% for creating a review', $slug ),
+            'description' => __( 'Triggered when a user creates a review.', $slug ),
+            'callback'    => array( 'Mycred_Review' )
+        );
+    
+        return $hooks;
 	}
 	
 	/**

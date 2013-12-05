@@ -15,7 +15,6 @@ class MyCRED_Review extends myCRED_Hook
      */
     function __construct( $hook_prefs ) 
     {
-        
         parent::__construct(
         	array(
 	            'id'       => 'comments2reviews_review',
@@ -46,10 +45,10 @@ class MyCRED_Review extends myCRED_Hook
     /**
      * Hook into WordPress
      */
-    public function run() {
+    public function run() 
+    {
         add_action( 'comments2reviews_review',  array( $this, 'review' ), 10, 2 );
         add_action( 'transition_comment_status', array( $this, 'transition_comment_status' ), 9, 3 );
-        
     }
     
     
@@ -81,7 +80,6 @@ class MyCRED_Review extends myCRED_Hook
         if ( !is_null( $hook ) ) {
             remove_action( 'transition_comment_status', array( $hook, 'comment_transitions' ) );
         }
-        
     }
     
     

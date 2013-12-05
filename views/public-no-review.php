@@ -1,3 +1,3 @@
 <div class="rating no-review">
-    <?php _e( 'No reviews', 'comments2reviews' )?>
+    <?php echo apply_filters( 'c2r_no_reviews', __( 'No reviews', 'comments2reviews' ) )?>
 </div>
