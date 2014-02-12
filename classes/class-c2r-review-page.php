@@ -41,7 +41,11 @@ class C2R_Review_Page
 		
 		add_filter( 'template_include', array( $this, 'redirect_comment_template' ), 11 );
 		add_filter( 'comments_array', array( $this, 'comments_array' ) , 999 , 2  );
-		add_filter( 'get_comment_link', array( $this, 'modify_comment_link' ), 10, 3 );
+		
+		// Don't redirect the user to the single review page after posting
+		if ( 'wp-comments-post.php' !== basename( $_SERVER['PHP_SELF'] ) ) {
+			add_filter( 'get_comment_link', array( $this, 'modify_comment_link' ), 10, 3 );
+		}
 	}
 	
 	/**

@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Comments to Reviews\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/plugin-name\n"
-"POT-Creation-Date: 2013-10-01 16:44+0100\n"
-"PO-Revision-Date: 2013-10-01 16:45+0100\n"
+"POT-Creation-Date: 2014-02-11 17:45+0100\n"
+"PO-Revision-Date: 2014-02-11 17:45+0100\n"
 "Last-Translator: Thomas Lhotta <th.lhotta@gmail.com>\n"
 "Language-Team: Thomas Lhotta <th.lhotta@gmail.com>\n"
 "Language: Deutsch\n"
@@ -32,46 +32,56 @@ msgstr "Testbericht"
 msgid "Reviews"
 msgstr "Testberichte"
 
-#: views/rating-selector.php:14 views/metabox.php:6
+#: views/rating-selector.php:11
+msgid "I hate it"
+msgstr "Gefällt mir gar nicht"
+
+#: views/rating-selector.php:12
+msgid "I don't like it"
+msgstr "Gefällt mir nicht"
+
+#: views/rating-selector.php:13
+msgid "It's ok"
+msgstr "Nicht schlecht"
+
+#: views/rating-selector.php:14
+msgid "I like it"
+msgstr "Gefällt mir"
+
+#: views/rating-selector.php:15
+msgid "I love it"
+msgstr "Gefällt mir sehr"
+
+#: views/rating-selector.php:18 classes/class-comments-2-reviews.php:535
+#, php-format
+msgid "%1$s posted a review on %2$s"
+msgstr "%1$s hat %2$s bewertet"
+
+#: views/rating-selector.php:19 classes/class-comments-2-reviews.php:536
+#, php-format
+msgid "on the site %1$s"
+msgstr "auf %1$s"
+
+#: views/rating-selector.php:26 views/metabox.php:6
 #: classes/class-c2r-admin.php:31
 msgid "Rating"
 msgstr "Bewertung"
 
-#: views/rating-selector.php:30 views/metabox.php:2
+#: views/rating-selector.php:42 views/metabox.php:2
 msgid "Title"
 msgstr "Titel"
+
+#: views/rating-selector.php:43
+msgid "Enter a title for this review."
+msgstr "Gib einen Titel für diesen Testbericht an."
 
 #: views/admin.php:3
 msgid "Comments 2 Reviews Settings"
 msgstr "Comments 2 Reviews Einstellungen"
 
-#: classes/MyCREDReview.php:274
-#, fuzzy
-msgid "Approved Review"
-msgstr "Gelösche / Abgelehnte Testberichte"
-
-#: classes/MyCREDReview.php:281 classes/MyCREDReview.php:293
-#: classes/MyCREDReview.php:305
-msgid "Log template"
-msgstr "Log vorlage"
-
-#: classes/MyCREDReview.php:283 classes/MyCREDReview.php:295
-#: classes/MyCREDReview.php:307
-msgid "Available template tags: General, Review"
-msgstr "Available template tags: General, Review"
-
-#: classes/MyCREDReview.php:286
-msgid "Review Marked SPAM"
-msgstr "Testbericht als SPAM markiert"
-
-#: classes/MyCREDReview.php:298
-msgid "Trashed / Unapproved Reviews"
-msgstr "Gelösche / Abgelehnte Testberichte"
-
 #: classes/class-c2r-admin.php:89 classes/class-c2r-admin.php:90
-#, fuzzy
 msgid "Comments 2 Reviews"
-msgstr "Comments 2 Reviews Einstellungen"
+msgstr "Comments 2 Reviews"
 
 #: classes/class-c2r-admin.php:106
 msgid "Create Reviews on:"
@@ -82,26 +92,43 @@ msgid "Choose the post types that reviews should be enabled on."
 msgstr "Wo sollen Kommentare als Testberichte verwendet werden. "
 
 # URLs
-#: classes/class-c2r-review-page.php:242
+#: classes/class-c2r-review-page.php:241
 msgid "reviews"
 msgstr "testberichte"
 
-#: classes/MyCREDHooks.php:33
+#: classes/class-mycred-review.php:272
+#, fuzzy
+msgid "Approved Review"
+msgstr "Gelösche / Abgelehnte Testberichte"
+
+#: classes/class-mycred-review.php:279 classes/class-mycred-review.php:291
+#: classes/class-mycred-review.php:303
+msgid "Log template"
+msgstr "Log vorlage"
+
+#: classes/class-mycred-review.php:281 classes/class-mycred-review.php:293
+#: classes/class-mycred-review.php:305
+msgid "Available template tags: General, Review"
+msgstr "Available template tags: General, Review"
+
+#: classes/class-mycred-review.php:284
+msgid "Review Marked SPAM"
+msgstr "Testbericht als SPAM markiert"
+
+#: classes/class-mycred-review.php:296
+msgid "Trashed / Unapproved Reviews"
+msgstr "Gelösche / Abgelehnte Testberichte"
+
+#: classes/class-comments-2-reviews.php:567
 msgid "%plural% for creating a review"
 msgstr "%plural% für das Schreiben eines Testberichtes "
 
-#: classes/MyCREDHooks.php:34
+#: classes/class-comments-2-reviews.php:568
 msgid "Triggered when a user creates a review."
 msgstr "Wird ausgelöst wenn ein Nutzer einen Testbericht schreibt."
 
 #~ msgid "A plugin that turns comments into reviews."
 #~ msgstr "Verwandelt Kommentare in Testberichte."
-
-#~ msgid "%1$s posted a review on %2$s"
-#~ msgstr "%1$s hat %2$s bewertet"
-
-#~ msgid "on the site %1$s"
-#~ msgstr "auf %1$s"
 
 #~ msgid "%plural% for Approved Comment"
 #~ msgstr "%plural% for genehmigte Testberichte"

@@ -111,7 +111,7 @@ class Comments_2_Reviews {
 		add_filter( 'bp_blogs_activity_new_comment_action', array( $this, 'buddypress_rename_comment_activity'), 10, 3 );
 		
 		//@todo Needs fix, buddypress strips html attributes.
-		// add_filter( 'bp_blogs_activity_new_comment_content', array( $this, 'modify_comment'), 10, 2) ;
+		add_filter( 'bp_blogs_activity_new_comment_content', array( $this, 'bp_blogs_activity_new_comment_content'), 10, 2 ) ;
 
 		
 		// Add myCRED hooks
@@ -155,7 +155,7 @@ class Comments_2_Reviews {
 	 * @since	1.0.0
 	 */
 	public function enqueue_styles() {
-		wp_enqueue_style( 
+		wp_enqueue_style(
 			$this->get_settings()->get_plugin_slug() . '-plugin-styles',
 			WP_PLUGIN_URL . '/' . basename( COMMENTS_2_REVIEWS_DIR ) . '/css/public.css',
 			array(),
@@ -209,12 +209,12 @@ class Comments_2_Reviews {
 		$rating_count = intval( get_post_meta( $post->ID, 'rating_count', true ) );
 		
 		if ( 0 == $rating_count ) {
-    		if ( $echo ) {
+			if ( $echo ) {
     		    include( COMMENTS_2_REVIEWS_DIR . '/views/public-no-review.php' );
     		    return;
     		} else {
-    		    return $rating;
-    		}
+				return $rating;
+			}
 		}
 		
 		$rating = floatval( get_post_meta( $post->ID, 'rating_mean', true ) );
@@ -289,7 +289,7 @@ class Comments_2_Reviews {
 	 * @param comment status $status
 	 */
 	public function save_comment_meta_data( $comment_id, $status ) {
-		if ( ( isset( $_POST['title'] ) ) && ( $_POST['title'] != '') ) {
+		if ( ( isset( $_POST['title'] ) ) && ( $_POST['title'] != '' ) ) {
 			$title = wp_filter_nohtml_kses( $_POST['title'] );
 			add_comment_meta( $comment_id, 'title', $title );
 		}
@@ -530,25 +530,61 @@ class Comments_2_Reviews {
 	    $user_id = (int) $user->ID;
 	    $post_permalink = get_permalink( $recorded_comment->comment_post_ID );
 	
-	    $single = '%1$s posted a review on %2$s';
-	    $multi  = 'on the site %1$s';
-	     
 	    $plugin_slug = $this->get_settings()->get_plugin_slug();
-	
+	    
+	    $single = __( '%1$s posted a review on %2$s', $plugin_slug );
+	    $multi  = __( 'on the site %1$s', $plugin_slug );
+	     
 	    $string = sprintf(
-            __( $single, $plugin_slug ),
-            bp_core_get_userlink( $user_id ),
-            '<a href="' . $post_permalink . '">' . apply_filters( 'the_title', $recorded_comment->post->post_title ) . '</a>'
+			$single,
+			bp_core_get_userlink( $user_id ),
+			'<a href="' . $post_permalink . '">' . apply_filters( 'the_title', $recorded_comment->post->post_title ) . '</a>'
 	    );
 	
-	    if ( is_multisite() ) {
+	    if ( is_multisite() && 1 !== get_current_blog_id() ) {
 	        $string .= ',' . sprintf(
-                __( $multi, $plugin_slug ),
-                '<a href="' . get_blog_option( $blog_id, 'home' ) . '">' . get_blog_option( $blog_id, 'blogname' ) . '</a>'
+				$multi,
+				'<a href="' . get_blog_option( $blog_id, 'home' ) . '">' . get_blog_option( $blog_id, 'blogname' ) . '</a>'
 	        );
 	    }
 	
 	    return $string;
+	}
+	
+	/**
+	 * Includes the rating in the BuddyPress activity
+	 * 
+	 * @param string $activity_content
+	 * @param object $recorded_comment
+	 * @param string $is_approved
+	 * @return string
+	 */
+	public function bp_blogs_activity_new_comment_content( $activity_content, $recorded_comment, $is_approved = true )
+	{
+		// Return if comment has no rating.
+		if ( !$this->comment_has_rating( $recorded_comment ) ) {
+			return $activity_content;
+		}
+		
+		$activity_content = bp_activity_filter_kses( $activity_content );
+		
+		// Ensure that 
+		remove_filter( 'bp_activity_content_before_save',       'bp_activity_filter_kses', 1 );
+		
+		$rating = get_comment_meta( $recorded_comment->comment_ID, 'rating', true );
+		
+		$title = get_comment_meta( $recorded_comment->comment_ID, 'title', true );
+		
+		ob_start();
+		include COMMENTS_2_REVIEWS_DIR . '/views/rating.php';
+		$rating = ob_get_contents();
+		ob_end_clean();
+
+		if ( !empty( $title ) ) {
+			return $rating . $title;
+		}
+		 			
+		return $rating . $activity_content;
 	}
 	
 	/**

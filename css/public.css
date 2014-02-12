@@ -1,88 +1,137 @@
 /* This stylesheet is used to style the public view of the plugin. */
 
-.review-rating-value {
+.review-rating-value
+{
     display: none;
 }
 
-.rating-selector {
-    overflow: hidden;
+.rating-selector
+{
     display: inline-block;
+    overflow: hidden;
+    overflow: hidden;
+
     width: auto;
 }
 
-.rating-box {
+.rating-box
+{
     position: relative;
+
     display: inline-block;
+
     vertical-align: middle;
-    overflow: hidden;
 }
 
-.rating-selector input {
+.rating-selector input
+{
     position: absolute;
-    left: 0;
     left: -100px;
 }
 
-.rating-selector .rating-text {
+.rating-selector .rating-text
+{
     display: none;
 }
 
-.rating-selector .rating-star {
+.rating-selector .rating-star
+{
     float: right;
 }
 
-.rating-selector .rating-star .icon-star {
+.rating-selector .rating-star .icon-star
+{
     display: none;
 }
 
 .rating-selector .rating-star:hover .icon-star,
 .rating-selector .rating-star:hover ~ .rating-star .icon-star,
-.rating-selector input:checked ~ .rating-star .icon-star {
+.rating-selector input:checked ~ .rating-star .icon-star
+{
     display: inline-block;
 }
 
 .rating-selector .rating-star:hover .icon-star-empty,
 .rating-selector .rating-star:hover ~ .rating-star .icon-star-empty,
-.rating-selector input:checked ~ .rating-star .icon-star-empty {
+.rating-selector input:checked ~ .rating-star .icon-star-empty
+{
     display: none;
 }
 
+/* Show hints */
+.rating-star:after
+{
+    font-size: .5em;
+
+    position: absolute;
+    top: 25%;
+    left: 100%;
+
+    display: block;
+
+    height: 100%;
+    margin-left: 20px;
+
+    content: ' ';
+    content: attr( title );
+    -webkit-transition: opacity .05s linear;
+       -moz-transition: opacity .05s linear;
+            transition: opacity .05s linear;
+    white-space: pre;
+
+    opacity: 0;
+}
+
+.rating-star:hover:after
+{
+    opacity: .8;
+}
+
+
 /* Don't show rating selector for answers */
 #comments + #respond .rating-selector,
-#comments + #respond .review-title {
+#comments + #respond .review-title
+{
     display: none;
 }
 
 /* Post rating display  */
-.rating .stars {
+.rating .stars
+{
     display: inline-block;
+
     white-space: nowrap;
 }
 
 
 /* Rating stats */
-.rating-stats .stars {
+.rating-stats .stars
+{
     text-align: right;
     white-space: nowrap;
 }
 
 
-/* IE 7/8 fallback  */ 
+/* IE 7/8 fallback  */
 
 
-.lt-ie9 .rating-selector input {
+.lt-ie9 .rating-selector input
+{
     position: static;
 }
 
-.lt-ie9 .rating-selector .rating-star {
+.lt-ie9 .rating-selector .rating-star
+{
     float: none;
 }
 
-.lt-ie9 .rating-selector .rating-text {
+.lt-ie9 .rating-selector .rating-text
+{
     display: inline;
 }
 
 .lt-ie9 .rating-selector .icon-star,
-.lt-ie9 .rating-selector .icon-star-empty {
+.lt-ie9 .rating-selector .icon-star-empty
+{
     display: none !important;
 }
