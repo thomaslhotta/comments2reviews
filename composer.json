@@ -2,7 +2,7 @@
     "name": "thomaslhotta/comments2reviews",
     "description": "A wordpress plugin that turns comments into reviews",
     "license": "MIT",
-    "type": "plugin",
+    "type": "wordpress-plugin",
     "authors": [
         {
             "name": "Thomas Lhotta",
