@@ -1,0 +1,15 @@
+{
+    "name": "thomaslhotta/comments2reviews",
+    "description": "A wordpress plugin that turns comments into reviews",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Thomas Lhotta",
+            "email": "th.lhotta@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+
+    }
+}
