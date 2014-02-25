@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Comments to Reviews\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/plugin-name\n"
-"POT-Creation-Date: 2014-02-11 17:45+0100\n"
-"PO-Revision-Date: 2014-02-11 17:45+0100\n"
+"POT-Creation-Date: 2014-02-20 18:55+0100\n"
+"PO-Revision-Date: 2014-02-20 18:56+0100\n"
 "Last-Translator: Thomas Lhotta <th.lhotta@gmail.com>\n"
 "Language-Team: Thomas Lhotta <th.lhotta@gmail.com>\n"
 "Language: Deutsch\n"
@@ -52,26 +52,16 @@ msgstr "Gefällt mir"
 msgid "I love it"
 msgstr "Gefällt mir sehr"
 
-#: views/rating-selector.php:18 classes/class-comments-2-reviews.php:535
-#, php-format
-msgid "%1$s posted a review on %2$s"
-msgstr "%1$s hat %2$s bewertet"
-
-#: views/rating-selector.php:19 classes/class-comments-2-reviews.php:536
-#, php-format
-msgid "on the site %1$s"
-msgstr "auf %1$s"
-
-#: views/rating-selector.php:26 views/metabox.php:6
+#: views/rating-selector.php:21 views/metabox.php:6
 #: classes/class-c2r-admin.php:31
 msgid "Rating"
 msgstr "Bewertung"
 
-#: views/rating-selector.php:42 views/metabox.php:2
+#: views/rating-selector.php:37 views/metabox.php:2
 msgid "Title"
 msgstr "Titel"
 
-#: views/rating-selector.php:43
+#: views/rating-selector.php:38
 msgid "Enter a title for this review."
 msgstr "Gib einen Titel für diesen Testbericht an."
 
@@ -92,12 +82,11 @@ msgid "Choose the post types that reviews should be enabled on."
 msgstr "Wo sollen Kommentare als Testberichte verwendet werden. "
 
 # URLs
-#: classes/class-c2r-review-page.php:241
+#: classes/class-c2r-review-page.php:245
 msgid "reviews"
 msgstr "testberichte"
 
 #: classes/class-mycred-review.php:272
-#, fuzzy
 msgid "Approved Review"
 msgstr "Gelösche / Abgelehnte Testberichte"
 
@@ -119,11 +108,27 @@ msgstr "Testbericht als SPAM markiert"
 msgid "Trashed / Unapproved Reviews"
 msgstr "Gelösche / Abgelehnte Testberichte"
 
-#: classes/class-comments-2-reviews.php:567
+#: classes/class-comments-2-reviews.php:539
+#, php-format
+msgid "%1$s posted a review on %2$s"
+msgstr "%1$s hat %2$s bewertet"
+
+#: classes/class-comments-2-reviews.php:540
+#: classes/class-comments-2-reviews.php:570
+#, php-format
+msgid "on the site %1$s"
+msgstr "auf %1$s"
+
+#: classes/class-comments-2-reviews.php:569
+#, php-format
+msgid "%1$s commented on %2$s's review on %3$s"
+msgstr "%1$s hat den Testbericht von %2$s zu %3$s kommentiert"
+
+#: classes/class-comments-2-reviews.php:645
 msgid "%plural% for creating a review"
 msgstr "%plural% für das Schreiben eines Testberichtes "
 
-#: classes/class-comments-2-reviews.php:568
+#: classes/class-comments-2-reviews.php:646
 msgid "Triggered when a user creates a review."
 msgstr "Wird ausgelöst wenn ein Nutzer einen Testbericht schreibt."
 

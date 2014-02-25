@@ -110,13 +110,16 @@ class Comments_2_Reviews {
 		// Integrate width buddypress
 		add_filter( 'bp_blogs_activity_new_comment_action', array( $this, 'buddypress_rename_comment_activity'), 10, 3 );
 		
-		//@todo Needs fix, buddypress strips html attributes.
+		//@todo Needs fix, BuddyPress strips html attributes.
 		add_filter( 'bp_blogs_activity_new_comment_content', array( $this, 'bp_blogs_activity_new_comment_content'), 10, 2 ) ;
 
 		
 		// Add myCRED hooks
 		add_filter( 'mycred_setup_hooks', array( $this, 'mycred_hooks' ) );
-		require_once dirname( __FILE__ ) . '/class-mycred-review.php';
+		
+		if ( class_exists( 'myCRED_Hook' ) ) {
+			require_once dirname( __FILE__ ) . '/class-mycred-review.php';
+		}
 	}
 
 	/**
@@ -521,6 +524,10 @@ class Comments_2_Reviews {
 	 */
 	public function buddypress_rename_comment_activity( $activity_action, $recorded_comment, $is_approved = true )
 	{
+		if ( 0 !== $recorded_comment->comment_parent ) {
+			return $this->review_answer_activity( $activity_action, $recorded_comment );
+		}
+		
 	    // Return if comment has no rating.
 	    if ( !$this->comment_has_rating( $recorded_comment ) ) {
 	        return $activity_action;
@@ -538,6 +545,37 @@ class Comments_2_Reviews {
 	    $string = sprintf(
 			$single,
 			bp_core_get_userlink( $user_id ),
+			'<a href="' . $post_permalink . '">' . apply_filters( 'the_title', $recorded_comment->post->post_title ) . '</a>'
+	    );
+	
+	    if ( is_multisite() && 1 !== get_current_blog_id() ) {
+	        $string .= ',' . sprintf(
+				$multi,
+				'<a href="' . get_blog_option( $blog_id, 'home' ) . '">' . get_blog_option( $blog_id, 'blogname' ) . '</a>'
+	        );
+	    }
+	
+	    return $string;
+	}
+	
+	protected function review_answer_activity( $activity_action, $recorded_comment, $parent_comment ) 
+	{
+		$parent = get_comment( $recorded_comment->comment_parent );
+
+		if ( !$this->comment_has_rating( $parent ) ) {
+			// Parent was no review, don't rename
+			return $activity_action;
+		}
+		
+		$plugin_slug = $this->get_settings()->get_plugin_slug();
+		
+		$single = __( '%1$s commented on %2$s\'s review on %3$s', $plugin_slug );
+		$multi  = __( 'on the site %1$s', $plugin_slug );
+	     
+	    $string = sprintf(
+			$single,
+			bp_core_get_userlink( $recorded_comment->user_id ),
+    		bp_core_get_userlink( $parent->user_id ),
 			'<a href="' . $post_permalink . '">' . apply_filters( 'the_title', $recorded_comment->post->post_title ) . '</a>'
 	    );
 	
@@ -575,16 +613,25 @@ class Comments_2_Reviews {
 		
 		$title = get_comment_meta( $recorded_comment->comment_ID, 'title', true );
 		
+		if ( !empty( $title ) ) {
+			$activity_content = $title;
+		}
+		
+		get_post_thumbnail_id( );
+		
 		ob_start();
 		include COMMENTS_2_REVIEWS_DIR . '/views/rating.php';
 		$rating = ob_get_contents();
 		ob_end_clean();
-
-		if ( !empty( $title ) ) {
-			return $rating . $title;
-		}
-		 			
-		return $rating . $activity_content;
+		
+		$activity_content = $rating . get_the_post_thumbnail( $recorded_comment->comment_post_ID, 'thumbnail' ) . $activity_content;
+			
+		// Remove stupid markup that BuddyPress adds to image
+		add_filter( 'bp_activity_thumbnail_content_images', function( $content ) use ( $activity_content ) {
+			return $activity_content;				
+		});
+			
+		return $activity_content . $actions;
 	}
 	
 	/**
