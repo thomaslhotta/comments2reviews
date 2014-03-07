@@ -558,7 +558,7 @@ class Comments_2_Reviews {
 	    return $string;
 	}
 	
-	protected function review_answer_activity( $activity_action, $recorded_comment, $parent_comment ) 
+	protected function review_answer_activity( $activity_action, $recorded_comment ) 
 	{
 		$parent = get_comment( $recorded_comment->comment_parent );
 
