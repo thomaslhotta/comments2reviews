@@ -572,6 +572,8 @@ class Comments_2_Reviews {
 		$single = __( '%1$s commented on %2$s\'s review on %3$s', $plugin_slug );
 		$multi  = __( 'on the site %1$s', $plugin_slug );
 	     
+		$post_permalink = get_post_permalink( $recorded_comment->post->ID );
+		
 	    $string = sprintf(
 			$single,
 			bp_core_get_userlink( $recorded_comment->user_id ),
@@ -631,7 +633,7 @@ class Comments_2_Reviews {
 			return $activity_content;				
 		});
 			
-		return $activity_content . $actions;
+		return $activity_content;
 	}
 	
 	/**
