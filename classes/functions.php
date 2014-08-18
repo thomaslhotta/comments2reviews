@@ -11,6 +11,11 @@ function get_post_rating ( $post = null, $echo = true, $microdata = true ) {
 	return Comments_2_Reviews::get_instance()->get_post_rating( $post, $echo, $microdata );
 }
 
+function get_post_rating_stars( $post = null ) {
+	$rating = get_post_rating( $post, false );
+	require COMMENTS_2_REVIEWS_DIR . '/views/rating.php';
+}
+
 function get_post_rating_stats( $post = null, $echo = true ) {
 	return Comments_2_Reviews::get_instance()->get_post_rating_stats( $post, $echo );
 }

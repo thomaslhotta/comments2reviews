@@ -7,26 +7,25 @@
 
 .rating-selector
 {
-    display: inline-block;
     overflow: hidden;
     overflow: hidden;
-
     width: auto;
 }
 
 .rating-box
 {
     position: relative;
-
     display: inline-block;
-
     vertical-align: middle;
 }
 
 .rating-selector input
 {
     position: absolute;
-    left: -100px;
+    right: 10px;
+	top: 50%;
+	opacity: -1;
+
 }
 
 .rating-selector .rating-text
@@ -39,38 +38,43 @@
     float: right;
 }
 
-.rating-selector .rating-star .icon-star
+.rating-selector .rating-star .fa-star
 {
     display: none;
 }
 
-.rating-selector .rating-star:hover .icon-star,
-.rating-selector .rating-star:hover ~ .rating-star .icon-star,
-.rating-selector input:checked ~ .rating-star .icon-star
+.rating-selector .rating-star:hover .fa-star,
+.rating-selector .rating-star:hover ~ .rating-star .fa-star,
+.rating-selector input:checked ~ .rating-star .fa-star
 {
     display: inline-block;
 }
 
-.rating-selector .rating-star:hover .icon-star-empty,
-.rating-selector .rating-star:hover ~ .rating-star .icon-star-empty,
-.rating-selector input:checked ~ .rating-star .icon-star-empty
+.rating-selector .rating-star:hover .fa-star-o,
+.rating-selector .rating-star:hover ~ .rating-star .fa-star-o,
+.rating-selector input:checked ~ .rating-star .fa-star-o
 {
     display: none;
 }
 
-/* Show hints */
+
+/* Show star hints */
+.rating-box .hint:after,
 .rating-star:after
 {
     font-size: .5em;
 
     position: absolute;
-    top: 25%;
+    top: 50%;
     left: 100%;
 
     display: block;
 
     height: 100%;
+	margin-top: -1em;
     margin-left: 20px;
+
+	font-weight: bold;
 
     content: ' ';
     content: attr( title );
@@ -82,9 +86,20 @@
     opacity: 0;
 }
 
+.rating-box .hint:after
+{
+	opacity: 1;
+}
+
+.rating-box:hover .hint:after,
+.rating-box input:checked ~ .hint:after
+{
+	opacity: 0;
+}
+
 .rating-star:hover:after
 {
-    opacity: .8;
+    opacity: 1;
 }
 
 
@@ -99,22 +114,31 @@
 .rating .stars
 {
     display: inline-block;
-
     white-space: nowrap;
 }
 
 
 /* Rating stats */
+.rating-stats td {
+	padding: 0px 2px;
+	vertical-align: middle;
+}
+
+.rating-stats tr:first-child td {
+	border-bottom: 10px;
+}
 .rating-stats .stars
 {
     text-align: right;
     white-space: nowrap;
 }
 
+.rating-stats .progress {
+	margin-bottom: 0;
+}
+
 
 /* IE 7/8 fallback  */
-
-
 .lt-ie9 .rating-selector input
 {
     position: static;
@@ -130,8 +154,8 @@
     display: inline;
 }
 
-.lt-ie9 .rating-selector .icon-star,
-.lt-ie9 .rating-selector .icon-star-empty
+.lt-ie9 .rating-selector .fa-star,
+.lt-ie9 .rating-selector .fa-star-empty
 {
     display: none !important;
 }

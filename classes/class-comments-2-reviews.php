@@ -111,7 +111,15 @@ class Comments_2_Reviews {
 		add_filter( 'bp_blogs_activity_new_comment_action', array( $this, 'buddypress_rename_comment_activity'), 10, 3 );
 		
 		//@todo Needs fix, BuddyPress strips html attributes.
-		add_filter( 'bp_blogs_activity_new_comment_content', array( $this, 'bp_blogs_activity_new_comment_content'), 10, 2 ) ;
+		add_filter(
+			'bp_blogs_activity_new_comment_content',
+			array(
+				$this,
+				'bp_blogs_activity_new_comment_content',
+			),
+			10,
+			2
+		);
 
 		
 		// Add myCRED hooks
@@ -192,7 +200,7 @@ class Comments_2_Reviews {
 			),
 		);
 	
-		$query = new WP_Comment_Query( $query );
+		$query = new WP_Comment_Query();
 		$existing_ratings = $query->query( $args );
 		
 		if ( empty( $existing_ratings ) ) {
@@ -213,19 +221,19 @@ class Comments_2_Reviews {
 		
 		if ( 0 == $rating_count ) {
 			if ( $echo ) {
-    		    include( COMMENTS_2_REVIEWS_DIR . '/views/public-no-review.php' );
-    		    return;
-    		} else {
-				return $rating;
+				include( COMMENTS_2_REVIEWS_DIR . '/views/public-no-review.php' );
+				return;
+			} else {
+				return 0;
 			}
 		}
 		
 		$rating = floatval( get_post_meta( $post->ID, 'rating_mean', true ) );
 		
 		if ( $echo ) {
-		    include( COMMENTS_2_REVIEWS_DIR . '/views/public.php' );
+			include( COMMENTS_2_REVIEWS_DIR . '/views/public.php' );
 		} else {
-		    return $rating;
+			return $rating;
 		}
 	}
 	
@@ -233,56 +241,64 @@ class Comments_2_Reviews {
 	 * Returns rating stats for the current post.
 	 * 
 	 * @param string $id
+	 * @param boolean $echo
 	 * @return array
 	 */
 	public function get_post_rating_stats( $id = null, $echo = true )
 	{
-	    $post = get_post( $id );
-	    $id = $post->ID;
-	    
-	    $args = array(
-	       'post_id' => $id,
-	       'status' => 'approve',
-	       'meta_query' => array(
-	           array(
-	               'key'     => 'rating',
-	               'compare' => 'EXISTS',
-	           ),
-	       )
-	    );
-	    
-	    // The Query
-	    $comments_query = new WP_Comment_Query;
-	    $comments = $comments_query->query( $args );
-	    
-	    $stats = array(
-	        1 => 0,
-	        2 => 0,
-	        3 => 0,
-	        4 => 0,
-	        5 => 0,	       
-	    );
-	    
-	    if ( !is_array( $comments ) ) {
-	        return $stats;
-	    }
-	    
-	    foreach ( $comments as $comment ) {
+		$post = get_post( $id );
+		$id = $post->ID;
+
+		$args = array(
+		   'post_id' => $id,
+		   'status' => 'approve',
+		   'meta_query' => array(
+			   array(
+				   'key'	 => 'rating',
+				   'compare' => 'EXISTS',
+			   ),
+		   )
+		);
+		
+		// The Query
+		$comments_query = new WP_Comment_Query;
+		$comments = $comments_query->query( $args );
+		
+		$stats = array(
+			1 => 0,
+			2 => 0,
+			3 => 0,
+			4 => 0,
+			5 => 0,		   
+		);
+		
+		if ( !is_array( $comments ) ) {
+			if ( $echo ) {
+				return '';
+			} else {
+				return $stats;
+			}
+		}
+
+		foreach ( $comments as $comment ) {
 			$rating = intval( $comment->meta_value );
 			
 			// Ignore invalid ratings
 			if ( !isset ( $stats[$rating] ) ) {
 				continue;
 			}
-	    	
-	    	$stats[$rating] += 1; 
-	    }
-	    
-	    if ( $echo ) {
-	    	include( COMMENTS_2_REVIEWS_DIR . '/views/stats.php' );
-	    }
-	    
-	    return $stats;
+			
+			$stats[$rating] += 1; 
+		}
+		
+		if ( $echo ) {
+			$rating_total = intval( get_post_meta( $post->ID, 'rating_total', true ) );
+			$rating_count = intval( get_post_meta( $post->ID, 'rating_count', true ) );
+
+			include( COMMENTS_2_REVIEWS_DIR . '/views/stats.php' );
+		}
+		
+		return $stats;
 	}
 	
 	/**
@@ -319,11 +335,7 @@ class Comments_2_Reviews {
 		}
 	}
 	
-/*
- *  Comment output modifications
- */
-	
-	
+
 	/**
 	 * Adds the class has-rating to the comment if is a rating commen.
 	 *
@@ -465,7 +477,6 @@ class Comments_2_Reviews {
 		
 		update_post_meta( $post->ID, 'rating_count' , $total );
 		update_post_meta( $post->ID, 'rating_mean' , $rating );
-		
 	}
 	
 	/**
@@ -528,34 +539,35 @@ class Comments_2_Reviews {
 			return $this->review_answer_activity( $activity_action, $recorded_comment );
 		}
 		
-	    // Return if comment has no rating.
-	    if ( !$this->comment_has_rating( $recorded_comment ) ) {
-	        return $activity_action;
-	    }
-	    
-	    $user = get_user_by( 'email', $recorded_comment->comment_author_email );
-	    $user_id = (int) $user->ID;
-	    $post_permalink = get_permalink( $recorded_comment->comment_post_ID );
-	
-	    $plugin_slug = $this->get_settings()->get_plugin_slug();
-	    
-	    $single = __( '%1$s posted a review on %2$s', $plugin_slug );
-	    $multi  = __( 'on the site %1$s', $plugin_slug );
-	     
-	    $string = sprintf(
+		// Return if comment has no rating.
+		if ( !$this->comment_has_rating( $recorded_comment ) ) {
+			return $activity_action;
+		}
+		
+		$user = get_user_by( 'email', $recorded_comment->comment_author_email );
+		$user_id = (int) $user->ID;
+		$post_permalink = get_permalink( $recorded_comment->comment_post_ID );
+		$blog_id = get_current_blog_id();
+
+		$plugin_slug = $this->get_settings()->get_plugin_slug();
+		
+		$single = __( '%1$s posted a review on %2$s', $plugin_slug );
+		$multi  = __( 'on the site %1$s', $plugin_slug );
+		 
+		$string = sprintf(
 			$single,
 			bp_core_get_userlink( $user_id ),
 			'<a href="' . $post_permalink . '">' . apply_filters( 'the_title', $recorded_comment->post->post_title ) . '</a>'
-	    );
+		);
 	
-	    if ( is_multisite() && 1 !== get_current_blog_id() ) {
-	        $string .= ',' . sprintf(
+		if ( is_multisite() && 1 !== get_current_blog_id() ) {
+			$string .= ',' . sprintf(
 				$multi,
 				'<a href="' . get_blog_option( $blog_id, 'home' ) . '">' . get_blog_option( $blog_id, 'blogname' ) . '</a>'
-	        );
-	    }
+			);
+		}
 	
-	    return $string;
+		return $string;
 	}
 	
 	protected function review_answer_activity( $activity_action, $recorded_comment ) 
@@ -568,27 +580,30 @@ class Comments_2_Reviews {
 		}
 		
 		$plugin_slug = $this->get_settings()->get_plugin_slug();
-		
+		$blog_id = get_current_blog_id();
+
 		$single = __( '%1$s commented on %2$s\'s review on %3$s', $plugin_slug );
 		$multi  = __( 'on the site %1$s', $plugin_slug );
-	     
-		$post_permalink = get_post_permalink( $recorded_comment->post->ID );
+
+		$post_id = intval( $recorded_comment->comment_post_ID );
+
+		$post_permalink = get_post_permalink( $post_id );
 		
-	    $string = sprintf(
+		$string = sprintf(
 			$single,
 			bp_core_get_userlink( $recorded_comment->user_id ),
-    		bp_core_get_userlink( $parent->user_id ),
-			'<a href="' . $post_permalink . '">' . apply_filters( 'the_title', $recorded_comment->post->post_title ) . '</a>'
-	    );
+			bp_core_get_userlink( $parent->user_id ),
+			'<a href="' . $post_permalink . '">' . get_the_title( $post_id ) . '</a>'
+		);
 	
-	    if ( is_multisite() && 1 !== get_current_blog_id() ) {
-	        $string .= ',' . sprintf(
+		if ( is_multisite() && 1 !== get_current_blog_id() ) {
+			$string .= ',' . sprintf(
 				$multi,
 				'<a href="' . get_blog_option( $blog_id, 'home' ) . '">' . get_blog_option( $blog_id, 'blogname' ) . '</a>'
-	        );
-	    }
+			);
+		}
 	
-	    return $string;
+		return $string;
 	}
 	
 	/**
@@ -609,7 +624,7 @@ class Comments_2_Reviews {
 		$activity_content = bp_activity_filter_kses( $activity_content );
 		
 		// Ensure that 
-		remove_filter( 'bp_activity_content_before_save',       'bp_activity_filter_kses', 1 );
+		remove_filter( 'bp_activity_content_before_save',	   'bp_activity_filter_kses', 1 );
 		
 		$rating = get_comment_meta( $recorded_comment->comment_ID, 'rating', true );
 		
@@ -646,13 +661,13 @@ class Comments_2_Reviews {
 	{
 		$slug = Comments_2_Reviews::get_instance()->get_settings()->get_plugin_slug();
 		
-        $hooks['comments2reviews_review'] = array(
-            'title'       => __( '%plural% for creating a review', $slug ),
-            'description' => __( 'Triggered when a user creates a review.', $slug ),
-            'callback'    => array( 'Mycred_Review' )
-        );
-    
-        return $hooks;
+		$hooks['comments2reviews_review'] = array(
+			'title'	   => __( '%plural% for creating a review', $slug ),
+			'description' => __( 'Triggered when a user creates a review.', $slug ),
+			'callback'	=> array( 'Mycred_Review' )
+		);
+	
+		return $hooks;
 	}
 	
 	/**
@@ -661,6 +676,6 @@ class Comments_2_Reviews {
 	 */
 	public function __( $text )
 	{
-	    return __( $text, $this->get_settings()->get_plugin_slug() );
+		return __( $text, $this->get_settings()->get_plugin_slug() );
 	}
 }

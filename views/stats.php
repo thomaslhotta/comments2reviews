@@ -1,8 +1,15 @@
 <?php 
 // Displays the stats.
 ?>
-<div class="rating-stats">
-
+<table class="rating-stats">
+	<tr>
+		<td>
+			<?php require __DIR__ . '/rating.php';?>
+		</td>
+		<td>
+			<?php require __DIR__ . '/rating-text.php'; ?>
+		</td>
+	</tr>
 <?php
 $total = array_sum( $stats );
 
@@ -19,24 +26,27 @@ foreach ( array_reverse( $stats, true ) as $rating => $stat ) :
 	} else {
 		$val = ( $stat / $total ) * 100;
 	}
-	
+
+	$url = esc_url( add_query_arg( 'rating', $rating, $base_url ) );
+
 ?>
-	<?php if( $val > 0 ) : ?><a href="<?php echo esc_url( add_query_arg( 'rating', $rating, $base_url ) )?>"> <?php endif?>
-		<div class="row">
-			<div class="col-xs-4 stars">
-			
+
+		<tr>
+			<td class="stars">
+				<?php if( $val > 0 ) : ?><a href="<?php echo $url?>"><?php endif;?>
 			<?php for ( $i = 0; $i < $rating; $i++ ): ?>
-				<i class="icon-star"></i>
+				<i class="fa fa-star"></i>
 			<?php endfor;?>
-			
-			</div>
-			<div class="col-xs-8" >
-		    	<div class="progress">
-		        	<div class="progress-bar" role="progressbar" aria-valuenow="<?php echo $val?>" aria-valuemin="0" aria-valuemax="100" style="width: <?php echo $val?>%;">
-		            </div>
-			    </div>
-		    </div>
-	    </div>
-	<?php if( $val > 0 ):?></a><?php endif;?>
+				<?php if( $val > 0 ) : ?></a><?php endif;?>
+			</td>
+			<td style="width:100%">
+				<?php if( $val > 0 ) : ?><a href="<?php echo $url?>"><?php endif;?>
+					<div class="progress">
+		        		<div class="progress-bar" role="progressbar" aria-valuenow="<?php echo $val?>" aria-valuemin="0" aria-valuemax="100" style="width: <?php echo $val?>%;">
+		            	</div>
+					</div>
+				<?php if( $val > 0 ) : ?></a><?php endif;?>
+		    </td>
+	    </tr>
 <?php endforeach;?>
-</div>
+</table>
