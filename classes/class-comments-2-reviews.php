@@ -351,7 +351,7 @@ class Comments_2_Reviews {
 		$classes[] = 'review';
 		
 		// Inject microformat
-		$classes[] = '" itemscope itemtype="http://data-vocabulary.org/Review';
+		$classes[] = '" itemprop="review" itemscope itemtype="http://data-vocabulary.org/Review';
 		
 		return $classes;
 	}
