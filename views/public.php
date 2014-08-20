@@ -8,10 +8,8 @@
  */
 
 ?>
-<div class="rating"<?echo $microdata ? '  itemprop="rating" itemscope itemtype="http://data-vocabulary.org/Rating"' :'' ?>>
-    <?php include __DIR__  .  "/rating.php" ?>
-    <?php include __DIR__  .  "/rating-text.php" ?>
-</div>
+<?php include __DIR__  .  "/rating.php" ?>
+<?php include __DIR__  .  "/rating-text.php" ?>
 
 
 
