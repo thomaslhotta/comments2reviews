@@ -9,4 +9,6 @@
 	<span class="rating-name">
 		<?php ( 1 == $rating_count ) ? _e( 'Review', 'comments2reviews' ) : _e( 'Reviews', 'comments2reviews' )?>
 	</span>)
+    <meta itemprop="bestRating" content="5" />
+    <meta itemprop="worstRating" content="1" />
 </span>

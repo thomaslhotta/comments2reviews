@@ -282,7 +282,7 @@ class Comments_2_Reviews {
 
 		foreach ( $comments as $comment ) {
 			$rating = intval( $comment->meta_value );
-			
+
 			// Ignore invalid ratings
 			if ( !isset ( $stats[$rating] ) ) {
 				continue;
