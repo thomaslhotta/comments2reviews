@@ -165,7 +165,12 @@ class Comments_2_Reviews {
 	 *
 	 * @since	1.0.0
 	 */
-	public function enqueue_styles() {
+	public function enqueue_styles()
+	{
+		if ( ! in_array( get_post_type(), $this->get_settings()->get_enabled_post_types() ) ) {
+			return;
+		};
+
 		wp_enqueue_style(
 			$this->get_settings()->get_plugin_slug() . '-plugin-styles',
 			WP_PLUGIN_URL . '/' . basename( COMMENTS_2_REVIEWS_DIR ) . '/css/public.css',

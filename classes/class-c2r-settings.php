@@ -22,7 +22,7 @@ class C2R_Settings
 			return $this->enabled_post_types;
 		}
 		
-		$post_types = get_option( $this->get_plugin_slug() . '-enabled_post_types' );
+		$post_types = get_option( $this->get_plugin_slug() . '-enabled_post_types', array() );
 		
 		if ( !is_array( $post_types ) ) {
 			$post_types = array();
