@@ -67,10 +67,6 @@ class Comments_2_Reviews {
 	 * @since	 1.0.0
 	 */
 	private function __construct() {
-		// Add review pages
-		require_once dirname( __FILE__ ) . '/class-c2r-review-page.php';
-		new C2R_Review_Page( $this->get_settings(), $this );
-		
 		require_once dirname( __FILE__ ) . '/class-c2r-query.php';
 		new C2R_Query( $this->get_settings() );
 		
@@ -99,11 +95,13 @@ class Comments_2_Reviews {
 		}
 		
 		// Add the rating markup to the comment text on display
-		add_filter( 'comment_text', array( $this, 'modify_comment' ) , 1000 );
+		add_filter( 'comment_text', array( $this, 'modify_comment' ), 1000 );
 		
-		// Modify comment author
-		add_filter( 'get_comment_author' , array( $this, 'get_comment_author' ) );
-		
+		// Add markup to comment author
+		if ( ! is_admin() ) {
+			add_filter( 'get_comment_author' , array( $this, 'get_comment_author' ), 99 );
+		}
+
 		// Add a class to rated comments on display and injects microformat
 		add_filter( 'comment_class', array( $this, 'add_comment_class' ) , 9999, 3 );
 		
@@ -369,11 +367,10 @@ class Comments_2_Reviews {
 	 */
 	public function get_comment_author( $author ) 
 	{
-		if ( !$this->comment_has_rating() or is_admin() ) {
-			return $author;
-		} 
-		
-		return '<span itemprop="reviewer">' . $author . '</span>';
+		if ( $this->comment_has_rating() ) {
+			$author = '<span itemprop="author">' . $author . '</span>';
+		}
+		return $author;
 	}
 	
 	/**
