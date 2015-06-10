@@ -1,89 +1,92 @@
 <?php
 
 /**
- * MyCRED hook for Reviews 
- * 
+ * MyCRED hook for Reviews
+ *
  * Based on MyCred Commen hook.
- * 
+ *
  * @author Thomas Lhotta
+ * @todo Need coding standards improvements
  *
  */
 class MyCRED_Review extends myCRED_Hook
 {
-    /**
-     * Construct
-     */
-    function __construct( $hook_prefs ) 
-    {
-        parent::__construct(
-        	array(
-	            'id'       => 'comments2reviews_review',
-	            'defaults' => array(
+	/**
+	 * Construct
+	 */
+	function __construct( $hook_prefs )
+	{
+		parent::__construct(
+			array(
+				'id'	   => 'comments2reviews_review',
+				'defaults' => array(
 						'limits'   => array(
 							'self_reply' => 0,
 							'per_post'   => 10,
-							'per_day'    => 0,
+							'per_day'	=> 0,
 						),
 						'approved' => array(
 							'creds'   => 1,
-							'log'     => '%plural% for Approved Comment',
+							'log'	 => '%plural% for Approved Comment',
 						),
-						'spam'     => array(
+						'spam'	 => array(
 							'creds'   => '-5',
-							'log'     => '%plural% deduction for Comment marked as SPAM',
+							'log'	 => '%plural% deduction for Comment marked as SPAM',
 						),
-						'trash'    => array(
+						'trash'	=> array(
 							'creds'   => '-1',
-							'log'     => '%plural% deduction for deleted / unapproved Comment',
+							'log'	 => '%plural% deduction for deleted / unapproved Comment',
 						)
 					)
-				), $hook_prefs 
-        ); 
-    }
-    
-    
-    /**
-     * Hook into WordPress
-     */
-    public function run() 
-    {
-        add_action( 'comments2reviews_review',  array( $this, 'review' ), 10, 2 );
-        add_action( 'transition_comment_status', array( $this, 'transition_comment_status' ), 9, 3 );
-    }
-    
-    
-    /**
-     * Check if the user qualifies for points
-     */
-    public function review( $comment_id, $comment_status ) {
-        $this->new_comment( $comment_id, $comment_status );
-    
-        // Prevent standard comments hook.
-        $hook = $this->get_comment_hook( $GLOBALS['wp_filter'], 'comment_post' );
-        if ( !is_null( $hook ) ) {
-            remove_action( 'comment_post', array( $hook, 'new_comment' ) );
-        }
-    }
-    
-    
-    /**
-     * @param string $new_status
-     * @param string $old_status
-     * @param integer $comment
-     */
-    public function transition_comment_status( $new_status, $old_status, $comment )
-    {
-        $this->comment_transitions( $new_status, $old_status, $comment );
-        
-        // Prevent standard comments transition hook.
-        $hook = $this->get_comment_hook( $GLOBALS['wp_filter'], 'transition_comment_status' );
-        if ( !is_null( $hook ) ) {
-            remove_action( 'transition_comment_status', array( $hook, 'comment_transitions' ) );
-        }
-    }
-    
-    
-    /**
+				),
+			$hook_prefs
+		);
+	}
+
+
+	/**
+	 * Hook into WordPress
+	 */
+	public function run()
+	{
+		add_action( 'comments2reviews_review',  array( $this, 'review' ), 10, 2 );
+		add_action( 'transition_comment_status', array( $this, 'transition_comment_status' ), 9, 3 );
+	}
+
+
+	/**
+	 * Check if the user qualifies for points
+	 */
+	public function review( $comment_id, $comment_status )
+	{
+		$this->new_comment( $comment_id, $comment_status );
+
+		// Prevent standard comments hook.
+		$hook = $this->get_comment_hook( $GLOBALS['wp_filter'], 'comment_post' );
+		if ( ! is_null( $hook ) ) {
+			remove_action( 'comment_post', array( $hook, 'new_comment' ) );
+		}
+	}
+
+
+	/**
+	 * @param string $new_status
+	 * @param string $old_status
+	 * @param integer $comment
+	 */
+	public function transition_comment_status( $new_status, $old_status, $comment )
+	{
+		$this->comment_transitions( $new_status, $old_status, $comment );
+
+		// Prevent standard comments transition hook.
+		$hook = $this->get_comment_hook( $GLOBALS['wp_filter'], 'transition_comment_status' );
+		if ( ! is_null( $hook ) ) {
+			remove_action( 'transition_comment_status', array( $hook, 'comment_transitions' ) );
+		}
+	}
+
+
+	/**
 	 * If reviews are approved without moderation, we apply the corresponding method
 	 * or else we will wait till the appropriate instance.
 	 */
@@ -101,11 +104,11 @@ class MyCRED_Review extends myCRED_Hook
 	 */
 	public function comment_transitions( $new_status, $old_status, $comment ) {
 		// Passing an integer instead of an object means we need to grab the comment object ourselves
-		if ( !is_object( $comment ) )
+		if ( ! is_object( $comment ) )
 			$comment = get_comment( $comment );
 
 		// Ignore Pingbacks or Trackbacks
-		if ( !empty( $comment->comment_type ) ) return;
+		if ( ! empty( $comment->comment_type ) ) return;
 
 		// Logged out users miss out
 		if ( $comment->user_id == 0 ) return;
@@ -202,7 +205,7 @@ class MyCRED_Review extends myCRED_Hook
 	 * Check if user exceeds limit
 	 */
 	public function user_exceeds_limit( $user_id = NULL, $post_id = NULL ) {
-		if ( !isset( $this->prefs['limits'] ) ) return false;
+		if ( ! isset( $this->prefs['limits'] ) ) return false;
 
 		// Prep
 		$today = date_i18n( 'Y-m-d' );
@@ -264,10 +267,10 @@ class MyCRED_Review extends myCRED_Hook
 		 * @version 1.0
 		 */
 		public function preferences() {
-		    $slug = $slug = Comments_2_Reviews::get_instance()->get_settings()->get_plugin_slug();
-		    
+			$slug = $slug = Comments_2_Reviews::get_instance()->get_settings()->get_plugin_slug();
+			
 			$prefs = $this->prefs;
-		    ?>
+			?>
 
 				<label class="subheader" for="<?php echo $this->field_id( array( 'approved' => 'creds' ) ); ?>"><?php _e( 'Approved Review', $slug ); ?></label>
 				<ol>
@@ -305,31 +308,31 @@ class MyCRED_Review extends myCRED_Hook
 						<span class="description"><?php _e( 'Available template tags: General, Review', $slug ); ?></span>
 					</li>
 				</ol>
-        <?php		unset( $this );
+		<?php		unset( $this );
 	}
 		
-    
-    
-    /**
-     * Returns the existing myCRED comment hook
-     * 
-     * @param array $filters
-     * @return object|null
-     */
-    public function get_comment_hook( $filters, $tag )
-    {
-        foreach ( $filters[$tag][10] as $filter ) {
-            foreach ( $filter as $entry ) {
-                if ( is_array( $entry ) ) {
-                    $o = $entry[0];
-                    if ( $o instanceof myCRED_Hook_Comments ) {
-                       return $o;
-                    }
-                }                 
-            }
-        }
-        
-        return null;
-    }
+	
+	
+	/**
+	 * Returns the existing myCRED comment hook
+	 * 
+	 * @param array $filters
+	 * @return object|null
+	 */
+	public function get_comment_hook( $filters, $tag )
+	{
+		foreach ( $filters[$tag][10] as $filter ) {
+			foreach ( $filter as $entry ) {
+				if ( is_array( $entry ) ) {
+					$o = $entry[0];
+					if ( $o instanceof myCRED_Hook_Comments ) {
+					   return $o;
+					}
+				}				 
+			}
+		}
+		
+		return null;
+	}
 }
  
