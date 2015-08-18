@@ -106,7 +106,7 @@ class Comments_2_Reviews {
 		add_filter( 'comment_class', array( $this, 'add_comment_class' ) , 9999, 3 );
 
 		// Integrate width buddypress
-		add_filter( 'bp_blogs_activity_new_comment_action', array( $this, 'buddypress_rename_comment_activity' ), 10, 3 );
+		add_filter( 'bp_blogs_activity_new_comment_action', array( $this, 'buddypress_rename_comment_activity' ), 100, 2 );
 
 		//@todo Needs fix, BuddyPress strips html attributes.
 		add_filter(
@@ -410,11 +410,10 @@ class Comments_2_Reviews {
 		}
 
 		$title = get_comment_meta( $comment->comment_ID, 'title', true );
-
 		$author = $comment->comment_author;
 
 		ob_start();
-		
+
 		include COMMENTS_2_REVIEWS_DIR . '/views/comment.php';
 
 		$return = ob_get_contents();
@@ -530,12 +529,11 @@ class Comments_2_Reviews {
 	 *
 	 * @param string $activity_action
 	 * @param $recorded_comment
-	 * @param string|boolean $is_approved
 	 * @return string
 	 */
-	public function buddypress_rename_comment_activity( $activity_action, $recorded_comment, $is_approved = true )
+	public function buddypress_rename_comment_activity( $activity_action, $recorded_comment )
 	{
-		if ( 0 !== $recorded_comment->comment_parent ) {
+		if ( 0 !== intval( $recorded_comment->comment_parent ) ) {
 			return $this->review_answer_activity( $activity_action, $recorded_comment );
 		}
 
@@ -544,10 +542,14 @@ class Comments_2_Reviews {
 			return $activity_action;
 		}
 
-		$user = get_user_by( 'email', $recorded_comment->comment_author_email );
-		$user_id = (int) $user->ID;
+		$user           = get_user_by( 'email', $recorded_comment->comment_author_email );
+		$user_id        = (int) $user->ID;
 		$post_permalink = get_permalink( $recorded_comment->comment_post_ID );
-		$blog_id = get_current_blog_id();
+		$blog_id        = get_current_blog_id();
+		$comment_post   = get_post( $recorded_comment->comment_post_ID );
+		if ( ! $comment_post instanceof WP_Post ) {
+			return $activity_action;
+		}
 
 		$plugin_slug = $this->get_settings()->get_plugin_slug();
 
@@ -557,7 +559,7 @@ class Comments_2_Reviews {
 		$string = sprintf(
 			$single,
 			bp_core_get_userlink( $user_id ),
-			'<a href="' . $post_permalink . '">' . apply_filters( 'the_title', $recorded_comment->post->post_title ) . '</a>'
+			'<a href="' . $post_permalink . '">' . apply_filters( 'the_title', $comment_post->post_title ) . '</a>'
 		);
 
 		if ( is_multisite() && 1 !== get_current_blog_id() ) {
@@ -586,6 +588,11 @@ class Comments_2_Reviews {
 		$multi  = __( 'on the site %1$s', $plugin_slug );
 
 		$post_id = intval( $recorded_comment->comment_post_ID );
+		$post = get_post( $post_id );
+
+		if ( ! $post instanceof WP_Post ) {
+			return $activity_action;
+		}
 
 		$post_permalink = get_post_permalink( $post_id );
 
@@ -608,7 +615,7 @@ class Comments_2_Reviews {
 
 	/**
 	 * Includes the rating in the BuddyPress activity
-	 * 
+	 *
 	 * @param string $activity_content
 	 * @param object $recorded_comment
 	 * @param string|boolean $is_approved
@@ -650,13 +657,13 @@ class Comments_2_Reviews {
 				return $activity_content;
 			}
 		);
-			
+
 		return $activity_content;
 	}
-	
+
 	/**
 	 * Adds MyCRED hooks
-	 * 
+	 *
 	 * @param unknown $modules
 	 * @return multitype:
 	 */
