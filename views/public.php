@@ -7,15 +7,6 @@
  *
  */
 
-?>
-<?php include __DIR__  .  "/rating.php" ?>
-<?php include __DIR__  .  "/rating-text.php" ?>
 
-
-
-
-
-
-
-
-
+include __DIR__  .  '/rating.php';
+include __DIR__  .  '/rating-text.php';

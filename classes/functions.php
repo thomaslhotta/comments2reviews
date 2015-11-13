@@ -7,7 +7,7 @@ function get_review_rating( $comment, $echo = false ) {
 	return Comments_2_Reviews::get_instance()->get_comment_rating( $comment, $echo );
 }
 
-function get_post_rating ( $post = null, $echo = true, $microdata = true ) {
+function get_post_rating( $post = null, $echo = true, $microdata = true ) {
 	return Comments_2_Reviews::get_instance()->get_post_rating( $post, $echo, $microdata );
 }
 

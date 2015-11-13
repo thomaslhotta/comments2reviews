@@ -1,6 +1,6 @@
-<?php include dirname( __FILE__ ) . "/rating.php" ?>
+<?php include dirname( __FILE__ ) . '/rating.php' ?>
    
-<?php if ( $title ):?>
+<?php if ( $title ) :?>
 	<span class="review-title" itemprop="name"><?php echo $title?></span>
 <?php endif;?>
 <span itemprop="reviewRating" itemscope itemtype="http://schema.org/Rating">

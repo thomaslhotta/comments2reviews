@@ -3,9 +3,9 @@
  * Comments 2 Reviews.
  *
  * @package   Comments 2 Reviews
- * @author	Thomas Lhotta <th.lhotta@gmail.com>
+ * @author    Thomas Lhotta <th.lhotta@gmail.com>
  * @license   GPL-2.0+
- * @link	  http://www.github.com/thomaslhotta
+ * @link      http://www.github.com/thomaslhotta
  * @copyright 2013 Thomas Lhotta
  */
 
@@ -20,32 +20,28 @@ class Comments_2_Reviews {
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
 	 *
-	 * @since   1.0.0
-	 * @var	 string
+	 * @var     string
 	 */
-	protected $version = '1.0.1';
+	protected $version = '1.0.2';
 
 	/**
 	 * Unique identifier for your plugin.
 	 *
-	 * @since	1.0.0
-	 * @var	  string
+	 * @var      string
 	 */
 	protected $plugin_slug = 'comments2reviews';
 
 	/**
 	 * Instance of this class.
 	 *
-	 * @since	1.0.0
-	 * @var	  Comments_2_Reviews
+	 * @var      Comments_2_Reviews
 	 */
 	protected static $instance = null;
 
 	/**
 	 * Slug of the plugin screen.
 	 *
-	 * @since	1.0.0
-	 * @var	  string
+	 * @var      string
 	 */
 	protected $plugin_screen_hook_suffix = null;
 
@@ -63,8 +59,6 @@ class Comments_2_Reviews {
 
 	/**
 	 * Initialize the plugin by setting localization, filters, and administration functions.
-	 *
-	 * @since	 1.0.0
 	 */
 	private function __construct() {
 		require_once dirname( __FILE__ ) . '/class-c2r-query.php';
@@ -80,8 +74,6 @@ class Comments_2_Reviews {
 
 		// Add ratings field to comment.
 		add_action( 'comment_form_logged_in_after', array( $this, 'add_rating_fields_to_comment' ) );
-
-		//add_filter( 'preprocess_comment', array( $this, 'verify_comment_meta_data' ) );
 
 		add_action( 'comment_post', array( $this, 'save_comment_meta_data' ), 9, 2 );
 
@@ -99,14 +91,17 @@ class Comments_2_Reviews {
 
 		// Add markup to comment author
 		if ( ! is_admin() ) {
-			add_filter( 'get_comment_author' , array( $this, 'get_comment_author' ), 99 );
+			add_filter( 'get_comment_author', array( $this, 'get_comment_author' ), 99 );
 		}
 
 		// Add a class to rated comments on display and injects microformat
-		add_filter( 'comment_class', array( $this, 'add_comment_class' ) , 9999, 3 );
+		add_filter( 'comment_class', array( $this, 'add_comment_class' ), 9999, 3 );
 
 		// Integrate width buddypress
-		add_filter( 'bp_blogs_activity_new_comment_action', array( $this, 'buddypress_rename_comment_activity' ), 100, 2 );
+		add_filter( 'bp_blogs_activity_new_comment_action', array(
+			$this,
+			'buddypress_rename_comment_activity',
+		), 100, 2 );
 
 		//@todo Needs fix, BuddyPress strips html attributes.
 		add_filter(
@@ -131,8 +126,7 @@ class Comments_2_Reviews {
 	/**
 	 * Return an instance of this class.
 	 *
-	 * @since	 1.0.0
-	 * @return	Comments_2_Reviews	A single instance of this class.
+	 * @return    Comments_2_Reviews    A single instance of this class.
 	 */
 	public static function get_instance() {
 
@@ -146,8 +140,6 @@ class Comments_2_Reviews {
 
 	/**
 	 * Load the plugin text domain for translation.
-	 *
-	 * @since	1.0.0
 	 */
 	public function load_plugin_textdomain() {
 
@@ -160,11 +152,8 @@ class Comments_2_Reviews {
 
 	/**
 	 * Register and enqueue public-facing style sheet.
-	 *
-	 * @since	1.0.0
 	 */
-	public function enqueue_styles()
-	{
+	public function enqueue_styles() {
 		if ( ! in_array( get_post_type(), $this->get_settings()->get_enabled_post_types() ) ) {
 			return;
 		};
@@ -192,18 +181,18 @@ class Comments_2_Reviews {
 
 		// Find existing ratings
 		$args = array(
-			'post_id' => $post->ID,
-			'user_id' => $user->ID,
-			'count' => false,
+			'post_id'    => $post->ID,
+			'user_id'    => $user->ID,
+			'count'      => false,
 			'meta_query' => array(
 				array(
-					'key' => 'rating',
+					'key'     => 'rating',
 					'compare' => 'EXISTS',
 				),
 			),
 		);
 
-		$query = new WP_Comment_Query();
+		$query            = new WP_Comment_Query();
 		$existing_ratings = $query->query( $args );
 
 		if ( empty( $existing_ratings ) ) {
@@ -215,8 +204,7 @@ class Comments_2_Reviews {
 	/**
 	 * Returns the posts rating.
 	 */
-	public function get_post_rating( $id = null, $echo = true, $microdata = true )
-	{
+	public function get_post_rating( $id = null, $echo = true, $microdata = true ) {
 		$post = get_post( $id );
 
 		$rating_total = intval( get_post_meta( $post->ID, 'rating_total', true ) );
@@ -225,19 +213,17 @@ class Comments_2_Reviews {
 		if ( 0 == $rating_count ) {
 			if ( $echo ) {
 				include( COMMENTS_2_REVIEWS_DIR . '/views/public-no-review.php' );
-				return;
-			} else {
-				return 0;
 			}
+
+			return 0;
 		}
 
 		$rating = floatval( get_post_meta( $post->ID, 'rating_mean', true ) );
 
 		if ( $echo ) {
 			include( COMMENTS_2_REVIEWS_DIR . '/views/public.php' );
-		} else {
-			return $rating;
 		}
+		return $rating;
 	}
 
 	/**
@@ -245,27 +231,26 @@ class Comments_2_Reviews {
 	 *
 	 * @param string $id
 	 * @param boolean $echo
+	 *
 	 * @return array
 	 */
-	public function get_post_rating_stats( $id = null, $echo = true )
-	{
+	public function get_post_rating_stats( $id = null, $echo = true ) {
 		$post = get_post( $id );
-		$id = $post->ID;
+		$id   = $post->ID;
 
-		$args = array(
-		   'post_id' => $id,
-		   'status' => 'approve',
-		   'meta_query' => array(
-			   array(
-				   'key'	 => 'rating',
-				   'compare' => 'EXISTS',
-			   ),
-		   )
+		global $wpdb;
+
+		$sql = sprintf(
+			'SELECT m.meta_value AS rating, COUNT( meta_id ) AS reviews
+			FROM %s AS m
+			INNER JOIN %s AS c ON m.comment_id = c.comment_ID AND c.comment_post_ID = %d
+			WHERE meta_key = \'rating\'
+			GROUP BY meta_value
+			ORDER BY meta_value ASC',
+			$wpdb->commentmeta,
+			$wpdb->comments,
+			$id
 		);
-
-		// The Query
-		$comments_query = new WP_Comment_Query;
-		$comments = $comments_query->query( $args );
 
 		$stats = array(
 			1 => 0,
@@ -275,27 +260,17 @@ class Comments_2_Reviews {
 			5 => 0,
 		);
 
-		if ( ! is_array( $comments ) ) {
-			if ( $echo ) {
-				return '';
-			} else {
-				return $stats;
-			}
+		foreach ( $wpdb->get_results( $sql ) as $row ) {
+			$stats[ intval( $row->rating ) ] = intval( $row->reviews );
 		}
 
-		foreach ( $comments as $comment ) {
-			$rating = intval( $comment->meta_value );
-
-			// Ignore invalid ratings
-			if ( ! isset ( $stats[ $rating ] ) ) {
-				continue;
-			}
-
-			$stats[ $rating ] += 1;
+		if ( 0 === array_sum( $stats ) ) {
+			return $stats;
 		}
 
 		if ( $echo ) {
-			$rating_total = intval( get_post_meta( $post->ID, 'rating_total', true ) );
+			$rating_total = floatval( get_post_meta( $post->ID, 'rating_total', true ) );
+			$rating = $rating_total;
 			$rating_count = intval( get_post_meta( $post->ID, 'rating_count', true ) );
 
 			include( COMMENTS_2_REVIEWS_DIR . '/views/stats.php' );
@@ -308,7 +283,7 @@ class Comments_2_Reviews {
 	 * Updates the comment rating.
 	 *
 	 * @param integer $comment_id
-	 * @param comment status $status
+	 * @param comment $status
 	 */
 	public function save_comment_meta_data( $comment_id, $status ) {
 		if ( ( isset( $_POST['title'] ) ) && ( '' != $_POST['title'] ) ) {
@@ -342,17 +317,17 @@ class Comments_2_Reviews {
 	 * Adds the class has-rating to the comment if is a rating commen.
 	 *
 	 * @param array $classes
+	 *
 	 * @return array
 	 */
-	public function add_comment_class( $classes, $class, $comment_id )
-	{
+	public function add_comment_class( $classes, $class, $comment_id ) {
 		if ( ! $this->comment_has_rating( $comment_id ) ) {
 			return $classes;
 		}
 
 		$classes[] = 'review';
 
-		// Inject microformat
+		// Inject micro format
 		$classes[] = '" itemprop="review" itemscope itemtype="http://schema.org/Review';
 
 		return $classes;
@@ -362,13 +337,14 @@ class Comments_2_Reviews {
 	 * Adds itemprop to comment author.
 	 *
 	 * @param string $author
+	 *
 	 * @return string
 	 */
-	public function get_comment_author( $author )
-	{
+	public function get_comment_author( $author ) {
 		if ( $this->comment_has_rating() ) {
 			$author = '<span itemprop="author">' . $author . '</span>';
 		}
+
 		return $author;
 	}
 
@@ -376,10 +352,10 @@ class Comments_2_Reviews {
 	 * Adds the rating box to the comment
 	 *
 	 * @param string $text
+	 *
 	 * @return integer|object
 	 */
-	public function modify_comment( $text, $comment = null )
-	{
+	public function modify_comment( $text, $comment = null ) {
 		// Sanitize comment object input
 		if ( ! is_object( $comment ) ) {
 			if ( is_array( $comment ) ) {
@@ -392,14 +368,12 @@ class Comments_2_Reviews {
 
 		// No object found, do nothing.
 		if ( ! is_object( $comment ) ) {
-			return;
+			return $text;
 		}
 
 		// Don't modify for child comments
-		if ( is_object( $comment ) ) {
-			if ( 0 != $comment->comment_parent ) {
-				return $text;
-			}
+		if ( 0 != $comment->comment_parent ) {
+			return $text;
 		}
 
 		$rating = get_comment_meta( $comment->comment_ID, 'rating', true );
@@ -409,7 +383,7 @@ class Comments_2_Reviews {
 			return $text;
 		}
 
-		$title = get_comment_meta( $comment->comment_ID, 'title', true );
+		$title  = get_comment_meta( $comment->comment_ID, 'title', true );
 		$author = $comment->comment_author;
 
 		ob_start();
@@ -423,24 +397,25 @@ class Comments_2_Reviews {
 	}
 
 	/**
-	 * Returns the rating value of the comment or null if the commen is no rating.
+	 * Returns the rating value of the comment or null if the comment has no rating.
 	 *
 	 * @param int|object $id
+	 *
 	 * @return NULL|number
 	 */
-	public  function get_comment_rating( $id, $echo = false ) {
+	public function get_comment_rating( $id, $echo = false ) {
 		if ( is_object( $id ) ) {
 			$id = $id->comment_ID;
 		}
 
-		$rating = get_comment_meta( $id, 'rating' ,true );
+		$rating = get_comment_meta( $id, 'rating', true );
 
 		if ( empty( $rating ) ) {
 			return null;
 		}
 
 		if ( $echo ) {
-			include dirname( dirname( __FILE__ ) ). '/views/rating.php';
+			include dirname( dirname( __FILE__ ) ) . '/views/rating.php';
 		}
 
 		return intval( $rating );
@@ -451,8 +426,7 @@ class Comments_2_Reviews {
 	 *
 	 * @param integer $post
 	 */
-	public function update_post_rating( $post )
-	{
+	public function update_post_rating( $post ) {
 		if ( ! $post instanceof WP_Post ) {
 			$post = get_post( $post );
 		}
@@ -475,8 +449,8 @@ class Comments_2_Reviews {
 			$rating = $weighted / $total;
 		}
 
-		update_post_meta( $post->ID, 'rating_count' , $total );
-		update_post_meta( $post->ID, 'rating_mean' , $rating );
+		update_post_meta( $post->ID, 'rating_count', $total );
+		update_post_meta( $post->ID, 'rating_total', $rating );
 	}
 
 	/**
@@ -484,11 +458,10 @@ class Comments_2_Reviews {
 	 *
 	 * @return boolean
 	 */
-	public function comment_has_rating( $id = null )
-	{
+	public function comment_has_rating( $id = null ) {
 		if ( is_null( $id ) ) {
 			$array = array();
-			$id = get_comment( $array );
+			$id    = get_comment( $array );
 		}
 
 		if ( is_object( $id ) ) {
@@ -509,8 +482,7 @@ class Comments_2_Reviews {
 	 *
 	 * @return C2R_Settings
 	 */
-	public function get_settings()
-	{
+	public function get_settings() {
 		if ( $this->settings ) {
 			return $this->settings;
 		}
@@ -525,14 +497,14 @@ class Comments_2_Reviews {
 	}
 
 	/**
-	 * Changes the activity string in buddypress
+	 * Changes the activity string in BuddyPress
 	 *
 	 * @param string $activity_action
 	 * @param $recorded_comment
+	 *
 	 * @return string
 	 */
-	public function buddypress_rename_comment_activity( $activity_action, $recorded_comment )
-	{
+	public function buddypress_rename_comment_activity( $activity_action, $recorded_comment ) {
 		if ( 0 !== intval( $recorded_comment->comment_parent ) ) {
 			return $this->review_answer_activity( $activity_action, $recorded_comment );
 		}
@@ -572,8 +544,7 @@ class Comments_2_Reviews {
 		return $string;
 	}
 
-	protected function review_answer_activity( $activity_action, $recorded_comment )
-	{
+	protected function review_answer_activity( $activity_action, $recorded_comment ) {
 		$parent = get_comment( $recorded_comment->comment_parent );
 
 		if ( ! $this->comment_has_rating( $parent ) ) {
@@ -582,13 +553,13 @@ class Comments_2_Reviews {
 		}
 
 		$plugin_slug = $this->get_settings()->get_plugin_slug();
-		$blog_id = get_current_blog_id();
+		$blog_id     = get_current_blog_id();
 
 		$single = __( '%1$s commented on %2$s\'s review on %3$s', $plugin_slug );
 		$multi  = __( 'on the site %1$s', $plugin_slug );
 
 		$post_id = intval( $recorded_comment->comment_post_ID );
-		$post = get_post( $post_id );
+		$post    = get_post( $post_id );
 
 		if ( ! $post instanceof WP_Post ) {
 			return $activity_action;
@@ -619,10 +590,10 @@ class Comments_2_Reviews {
 	 * @param string $activity_content
 	 * @param object $recorded_comment
 	 * @param string|boolean $is_approved
+	 *
 	 * @return string
 	 */
-	public function bp_blogs_activity_new_comment_content( $activity_content, $recorded_comment, $is_approved = true )
-	{
+	public function bp_blogs_activity_new_comment_content( $activity_content, $recorded_comment, $is_approved = true ) {
 		// Return if comment has no rating.
 		if ( ! $this->comment_has_rating( $recorded_comment ) ) {
 			return $activity_content;
@@ -631,7 +602,7 @@ class Comments_2_Reviews {
 		$activity_content = bp_activity_filter_kses( $activity_content );
 
 		// Ensure that ? what
-		remove_filter( 'bp_activity_content_before_save',	   'bp_activity_filter_kses', 1 );
+		remove_filter( 'bp_activity_content_before_save', 'bp_activity_filter_kses', 1 );
 
 		$rating = get_comment_meta( $recorded_comment->comment_ID, 'rating', true );
 
@@ -641,7 +612,7 @@ class Comments_2_Reviews {
 			$activity_content = $title;
 		}
 
-		get_post_thumbnail_id( );
+		get_post_thumbnail_id();
 
 		ob_start();
 		include COMMENTS_2_REVIEWS_DIR . '/views/rating.php';
@@ -664,28 +635,26 @@ class Comments_2_Reviews {
 	/**
 	 * Adds MyCRED hooks
 	 *
-	 * @param unknown $modules
-	 * @return multitype:
+	 * @param array $hooks
+	 *
+	 * @return array
 	 */
-	public function mycred_hooks( $hooks )
-	{
+	public function mycred_hooks( $hooks ) {
 		$slug = Comments_2_Reviews::get_instance()->get_settings()->get_plugin_slug();
 
 		$hooks['comments2reviews_review'] = array(
-			'title'	   => __( '%plural% for creating a review', $slug ),
+			'title'       => __( '%plural% for creating a review', $slug ),
 			'description' => __( 'Triggered when a user creates a review.', $slug ),
-			'callback'	=> array( 'Mycred_Review' )
+			'callback'    => array( 'Mycred_Review' ),
 		);
 
 		return $hooks;
 	}
 
 	/**
-	 *
 	 * @deprecated
 	 */
-	public function __( $text )
-	{
+	public function __( $text ) {
 		return __( $text, $this->get_settings()->get_plugin_slug() );
 	}
 }

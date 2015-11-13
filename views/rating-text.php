@@ -1,6 +1,6 @@
 <span itemprop="aggregateRating" itemscope itemtype="http://schema.org/AggregateRating">
 	<span class="rating-value" itemprop="ratingValue">
-		<?php echo round( $rating, 1 )?>
+		<?php echo round( $rating_total, 1 )?>
 	</span>
 	<span class="rating-of">/ 5</span>
 	(<span class="rating-count" itemprop="reviewCount">

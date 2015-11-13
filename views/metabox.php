@@ -5,7 +5,7 @@
 <p>
     <label for="rating"><?php _e( 'Rating', $this->get_plugin_slug() ); ?>:</label>
 	<span class="commentratingbox">
-	<?php for( $i=1; $i <= 5; $i++ ) {
+	<?php for ( $i = 1; $i <= 5; $i++ ) {
 		echo '<span class="commentrating"><input type="radio" name="rating" id="rating" value="'. $i .'"';
 		if ( $rating == $i ) echo ' checked="checked"';
 		echo ' />'. $i .' </span>';

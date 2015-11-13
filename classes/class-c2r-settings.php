@@ -1,12 +1,12 @@
 <?php
+
 /**
  * Deals with the plugin config.
  *
  * @author Thomas Lhotta
  *
  */
-class C2R_Settings
-{
+class C2R_Settings {
 	protected $enabled_post_types = null;
 
 	protected $slug = 'comments2reviews';
@@ -16,8 +16,7 @@ class C2R_Settings
 	 *
 	 * @return array
 	 */
-	public function get_enabled_post_types()
-	{
+	public function get_enabled_post_types() {
 		if ( is_array( $this->enabled_post_types ) ) {
 			return $this->enabled_post_types;
 		}
@@ -38,8 +37,7 @@ class C2R_Settings
 	 *
 	 * @return string
 	 */
-	public function get_plugin_slug()
-	{
-	    return $this->slug;
+	public function get_plugin_slug() {
+		return $this->slug;
 	}
 }
