@@ -203,6 +203,12 @@ class Comments_2_Reviews {
 
 	/**
 	 * Returns the posts rating.
+	 *
+	 * @param int $id Post ID
+	 * @param boolean $echo echos the rating if true
+	 * @param boolean $microdata Render microdata
+	 *
+	 * @return int
 	 */
 	public function get_post_rating( $id = null, $echo = true, $microdata = true ) {
 		$post = get_post( $id );
@@ -218,11 +224,12 @@ class Comments_2_Reviews {
 			return 0;
 		}
 
-		$rating = floatval( get_post_meta( $post->ID, 'rating_mean', true ) );
+		$rating = $rating_total;
 
 		if ( $echo ) {
 			include( COMMENTS_2_REVIEWS_DIR . '/views/public.php' );
 		}
+
 		return $rating;
 	}
 
@@ -283,7 +290,7 @@ class Comments_2_Reviews {
 	 * Updates the comment rating.
 	 *
 	 * @param integer $comment_id
-	 * @param comment $status
+	 * @param string $status
 	 */
 	public function save_comment_meta_data( $comment_id, $status ) {
 		if ( ( isset( $_POST['title'] ) ) && ( '' != $_POST['title'] ) ) {
