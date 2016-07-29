@@ -13,6 +13,6 @@ if ( ! isset( $rating ) ) {
 			$class = 'fa-star-half-empty';
 		}
 		?>
-		<i class="fa <?php echo $class ?>"></i>
+		<i class="fa <?php echo esc_attr( $class ) ?>"></i>
 	<?php endfor; ?>
 </div>

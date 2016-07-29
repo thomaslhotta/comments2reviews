@@ -17,7 +17,7 @@ $labels = array(
 ?>
 
 <div class="rating-selector clearfix">
-	<label for="rating-box" class="sr-only"><?php _e( 'Rating', 'comments2reviews' ) ?></label>
+	<label for="rating-box" class="sr-only"><?php esc_html_e( 'Rating', 'comments2reviews' ) ?></label>
     <span class="rating-box" id="rating-box">
     <?php for ( $i = 5; $i >= 1; $i -- ) : ?>
 	    <input <?php echo ( $rating == $i ) ? 'checked' : '' ?> type="radio" name="rating" id="rating-<?php echo $i ?>"
@@ -28,12 +28,13 @@ $labels = array(
 		    <i class="fa fa-star"></i>
 	    </label>
     <?php endfor ?>
-	    <span class="hint" title="&#8592; <?php _e( 'Select a rating', 'comments2reviews' ) ?>"></span>
+	    <span class="hint" title="&#8592; <?php esc_attr_e( 'Select a rating', 'comments2reviews' ) ?>"></span>
     </span>
 </div>
 
 <div class="review-title form-group">
-	<label for="review-title" class="sr-only"><?php _e( 'Title', 'comments2reviews' ) ?></label>
+	<label for="review-title" class="sr-only"><?php esc_html_e( 'Title', 'comments2reviews' ) ?></label>
 	<input id="review-title" name="title" type="text" class="form-control" size="30"
-	       placeholder="<?php _e( 'Enter a title for this review.', 'comments2reviews' ) ?>" <?php echo $title ? 'value="' . $title . '"' : '' ?>/>
+	       placeholder="<?php esc_attr_e( 'Enter a title for this review.', 'comments2reviews' ) ?>"
+			<?php echo $title ? 'value="' . esc_attr( $title ) . '"' : '' ?>/>
 </div>

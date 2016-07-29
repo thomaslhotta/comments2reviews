@@ -114,13 +114,9 @@ class Comments_2_Reviews {
 			2
 		);
 
-
 		// Add myCRED hooks
+		add_action( 'mycred_init', array( $this, 'mycred_init' ) );
 		add_filter( 'mycred_setup_hooks', array( $this, 'mycred_hooks' ) );
-
-		if ( class_exists( 'myCRED_Hook' ) ) {
-			require_once dirname( __FILE__ ) . '/class-mycred-review.php';
-		}
 	}
 
 	/**
@@ -129,9 +125,8 @@ class Comments_2_Reviews {
 	 * @return    Comments_2_Reviews    A single instance of this class.
 	 */
 	public static function get_instance() {
-
 		// If the single instance hasn't been set, set it now.
-		if ( null == self::$instance ) {
+		if ( null === self::$instance ) {
 			self::$instance = new self;
 		}
 
@@ -154,7 +149,7 @@ class Comments_2_Reviews {
 	 * Register and enqueue public-facing style sheet.
 	 */
 	public function enqueue_styles() {
-		if ( ! in_array( get_post_type(), $this->get_settings()->get_enabled_post_types() ) ) {
+		if ( ! in_array( get_post_type(), $this->get_settings()->get_enabled_post_types(), true ) ) {
 			return;
 		};
 
@@ -173,7 +168,7 @@ class Comments_2_Reviews {
 		$post = get_post();
 
 		// Don't to anything if comments are not enabled for this post type.
-		if ( ! in_array( $post->post_type, $this->get_settings()->get_enabled_post_types() ) ) {
+		if ( ! in_array( $post->post_type, $this->get_settings()->get_enabled_post_types(), true ) ) {
 			return;
 		}
 
@@ -321,13 +316,17 @@ class Comments_2_Reviews {
 	}
 
 	/**
-	 * Adds the class has-rating to the comment if is a rating commen.
+	 * Adds the class has-rating to the comment if is a rating comment.
 	 *
 	 * @param array $classes
+	 * @param string $class No used
+	 * @param int $comment_id
 	 *
 	 * @return array
 	 */
 	public function add_comment_class( $classes, $class, $comment_id ) {
+		unset( $class );
+
 		if ( ! $this->comment_has_rating( $comment_id ) ) {
 			return $classes;
 		}
@@ -359,6 +358,7 @@ class Comments_2_Reviews {
 	 * Adds the rating box to the comment
 	 *
 	 * @param string $text
+	 * @param int|array|WP_Comment $comment
 	 *
 	 * @return integer|object
 	 */
@@ -379,7 +379,7 @@ class Comments_2_Reviews {
 		}
 
 		// Don't modify for child comments
-		if ( 0 != $comment->comment_parent ) {
+		if ( ! empty( $comment->comment_parent ) ) {
 			return $text;
 		}
 
@@ -407,6 +407,7 @@ class Comments_2_Reviews {
 	 * Returns the rating value of the comment or null if the comment has no rating.
 	 *
 	 * @param int|object $id
+	 * @param bool $echo
 	 *
 	 * @return NULL|number
 	 */
@@ -439,7 +440,7 @@ class Comments_2_Reviews {
 		}
 
 		// Only do this for enabled post types.
-		if ( ! in_array( $post->post_type, $this->get_settings()->get_enabled_post_types() ) ) {
+		if ( ! in_array( $post->post_type, $this->get_settings()->get_enabled_post_types(), true ) ) {
 			return;
 		}
 
@@ -462,6 +463,8 @@ class Comments_2_Reviews {
 
 	/**
 	 * Returns true if the given comment has a rating.
+	 *
+	 * @param int|WP_Comment $id
 	 *
 	 * @return boolean
 	 */
@@ -631,12 +634,16 @@ class Comments_2_Reviews {
 		// Remove stupid markup that BuddyPress adds to image
 		add_filter(
 			'bp_activity_thumbnail_content_images',
-			function( $content ) use ( $activity_content ) {
+			function() use ( $activity_content ) {
 				return $activity_content;
 			}
 		);
 
 		return $activity_content;
+	}
+
+	public function mycred_init() {
+		require_once dirname( __FILE__ ) . '/class-mycred-review.php';
 	}
 
 	/**
@@ -656,12 +663,5 @@ class Comments_2_Reviews {
 		);
 
 		return $hooks;
-	}
-
-	/**
-	 * @deprecated
-	 */
-	public function __( $text ) {
-		return __( $text, $this->get_settings()->get_plugin_slug() );
 	}
 }

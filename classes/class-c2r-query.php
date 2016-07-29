@@ -26,7 +26,7 @@ class C2R_Query {
 	 * @param WP_Query $query
 	 */
 	public function modify_query( WP_Query $query ) {
-		if ( $query->get( 'orderby' ) != 'rating' ) {
+		if ( $query->get( 'orderby' ) !== 'rating' ) {
 			return;
 		}
 
@@ -69,7 +69,7 @@ class C2R_Query {
 			return $comments;
 		}
 
-		if ( ! in_array( get_post_type( $query->query_vars['post_id'] ), $this->settings->get_enabled_post_types() ) ) {
+		if ( ! in_array( get_post_type( $query->query_vars['post_id'] ), $this->settings->get_enabled_post_types(), true ) ) {
 			return $comments;
 		}
 
